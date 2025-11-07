@@ -1,0 +1,59 @@
+Citi Bike Usage Analysis
+================
+2025-11-07
+
+### Team Registration and Proposal
+
+##### Group Members:
+
+- Aisha Waggeh (aw3743)
+- Chelsey Oppan (co2616)
+- Katherine Barter (kb3510)
+
+##### Tentative Project Title:
+
+Exploring Citi Bike Usage Patterns Across Time and Space in New York
+City
+
+##### Motivation:
+
+Citi Bike plays a major role in sustainable transportation across New
+York City. Understanding when, where, and how riders use Citi Bikes can
+provide valuable insights into commuter behavior, infrastructure needs,
+and seasonal ridership trends. Our goal is to uncover meaningful
+patterns in trip frequency, duration, and geography that can help inform
+future improvements in the city’s bike-sharing system.
+
+##### Intended Final Products:
+
+- A written report summarizing key findings and insights.
+- Visualizations (heat maps, line plots, and bar charts) of ride
+  frequency, duration, and station popularity.
+- An interactive dashboard (Plotly) allowing users to explor ridership
+  patterns over time and space.
+
+##### Anticipated Data Sources:
+
+- Citi Bike Trip History Data (publicly available via the Citi Bike
+  System Data portal)
+- NYC borough shapefiles (from NYC Open Data) for mapping and spatial
+  visualization.
+
+##### Planned Analyses/Visualization/Coding Challenges:
+
+- Data Cleaning: Handle missing values, convert time stamps, and merge
+  multiple data sources.
+- Spatial Analysis: Identify the most popular start and end stations and
+  visualize routes using maps.
+- Temporal Analysis: Explore patterns by time, day of week, and season.
+- Descriptive Statistics: Compare trip durations and distances across
+  ridable types (classic, electric, docked).
+- Challenges: Working with large datasets efficiently, managing
+  geospatial data, and optimizing dashboard interactivity.
+
+##### Planned Timeline:
+
+- Week 1-2: Data cleaning, exploration, and variable selection.
+- Week 3-4: Conduct temporal and spatial analysis, begin visualization
+- Week 5: Build and refine interactive dashboard.
+- Week 6: Finalize written report and prepare presentation.
