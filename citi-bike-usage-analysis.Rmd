@@ -1,6 +1,6 @@
 ---
 title: "Citi Bike Usage Analysis"
-output: github_document
+output: html_document
 date: "2025-11-07"
 ---
 
