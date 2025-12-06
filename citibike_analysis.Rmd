@@ -1,0 +1,32 @@
+---
+title: "CitiBike Data Analysis Pipeline - Jan to Jun 2023"
+subtitle: "Data Cleaning, Transformation, and Preliminary Analysis"
+author: "Aisha (aw3743) - Data Pipeline Lead"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+    code_folding: show
+  pdf_document:
+    toc: true
+toc-title: "Table of Contents"
+---
+
+# 1. Project Setup and Configuration
+
+## 1.1 Load Required Libraries
+
+
+```{r}
+samp = rnorm(100)
+length(samp)
+```
+
+# Section 2
+
+I can take the mean of the sample, too!
+The mean is `r mean(samp)`.
