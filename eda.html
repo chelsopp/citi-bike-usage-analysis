@@ -263,10 +263,7 @@ $(document).ready(function () {
   <a href="report.html">Report</a>
 </li>
 <li>
-  <a href="citibike_analysis.html">citi bike analysis</a>
-</li>
-<li>
-  <a href="mailto:&lt;you@youremail.com&gt;">
+  <a href="https://www.youtube.com">
     <span class="fa fa-youtube fa-lg"></span>
      
   </a>
@@ -291,7 +288,931 @@ $(document).ready(function () {
 </div>
 
 
+<pre class="r"><code>cat(&quot;\n\n=== ANALYSIS 1: MONTHLY AND SEASONAL PATTERNS IN NJ METRO AREA ===\n&quot;)</code></pre>
+<pre><code>## 
+## 
+## === ANALYSIS 1: MONTHLY AND SEASONAL PATTERNS IN NJ METRO AREA ===</code></pre>
+<pre class="r"><code># Monthly summary
+monthly_summary &lt;- citibike_nj_analysis %&gt;%
+  group_by(start_month) %&gt;%
+  summarise(
+    n_rides = n(),
+    avg_duration = mean(ride_length_min),
+    total_hours = sum(ride_length_min) / 60,
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  mutate(
+    percentage = n_rides / sum(n_rides) * 100,
+    month_num = month(as.Date(paste(&quot;2023&quot;, start_month, &quot;01&quot;), format = &quot;%Y %B %d&quot;))
+  ) %&gt;%
+  arrange(month_num)
 
+cat(&quot;\nMonthly Ride Summary for NJ Citi Bike:\n&quot;)</code></pre>
+<pre><code>## 
+## Monthly Ride Summary for NJ Citi Bike:</code></pre>
+<pre class="r"><code>kable(monthly_summary %&gt;% select(start_month, n_rides, percentage, avg_duration), digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">start_month</th>
+<th align="right">n_rides</th>
+<th align="right">percentage</th>
+<th align="right">avg_duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">January</td>
+<td align="right">54205</td>
+<td align="right">5.6</td>
+<td align="right">10.4</td>
+</tr>
+<tr class="even">
+<td align="left">February</td>
+<td align="right">49315</td>
+<td align="right">5.1</td>
+<td align="right">9.2</td>
+</tr>
+<tr class="odd">
+<td align="left">March</td>
+<td align="right">60674</td>
+<td align="right">6.3</td>
+<td align="right">9.6</td>
+</tr>
+<tr class="even">
+<td align="left">April</td>
+<td align="right">78280</td>
+<td align="right">8.1</td>
+<td align="right">11.6</td>
+</tr>
+<tr class="odd">
+<td align="left">May</td>
+<td align="right">93363</td>
+<td align="right">9.7</td>
+<td align="right">12.9</td>
+</tr>
+<tr class="even">
+<td align="left">June</td>
+<td align="right">94671</td>
+<td align="right">9.8</td>
+<td align="right">12.6</td>
+</tr>
+<tr class="odd">
+<td align="left">July</td>
+<td align="right">104012</td>
+<td align="right">10.8</td>
+<td align="right">12.6</td>
+</tr>
+<tr class="even">
+<td align="left">August</td>
+<td align="right">109316</td>
+<td align="right">11.4</td>
+<td align="right">11.6</td>
+</tr>
+<tr class="odd">
+<td align="left">September</td>
+<td align="right">91979</td>
+<td align="right">9.6</td>
+<td align="right">11.1</td>
+</tr>
+<tr class="even">
+<td align="left">October</td>
+<td align="right">94921</td>
+<td align="right">9.9</td>
+<td align="right">10.9</td>
+</tr>
+<tr class="odd">
+<td align="left">November</td>
+<td align="right">73811</td>
+<td align="right">7.7</td>
+<td align="right">9.3</td>
+</tr>
+<tr class="even">
+<td align="left">December</td>
+<td align="right">57249</td>
+<td align="right">6.0</td>
+<td align="right">8.8</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Total rides per month
+p_monthly_total &lt;- monthly_summary %&gt;%
+  ggplot(aes(x = start_month, y = n_rides)) +
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;steelblue&quot;, alpha = 0.8) +
+  geom_text(aes(label = paste0(round(percentage, 1), &quot;%&quot;)), 
+            vjust = -0.5, size = 3.5) +
+  labs(
+    title = &quot;Monthly Ride Volume in NJ Metro Area (Jan-Jun 2023)&quot;,
+    subtitle = &quot;Percentage of total rides shown above bars&quot;,
+    x = &quot;Month&quot;,
+    y = &quot;Number of Rides&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  scale_y_continuous(labels = comma)
+
+print(p_monthly_total)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<pre class="r"><code># Monthly trends by member type
+monthly_member &lt;- citibike_nj_analysis %&gt;%
+  group_by(start_month, member_type) %&gt;%
+  summarise(
+    n_rides = n(),
+    avg_duration = mean(ride_length_min),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  group_by(start_month) %&gt;%
+  mutate(
+    total = sum(n_rides),
+    percentage = n_rides / total * 100
+  )
+
+# Plot: Monthly trends by member type
+p_monthly_member &lt;- monthly_member %&gt;%
+  ggplot(aes(x = start_month, y = n_rides, fill = member_type)) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
+  labs(
+    title = &quot;Monthly Ridership by Member Type in NJ Metro Area&quot;,
+    x = &quot;Month&quot;,
+    y = &quot;Number of Rides&quot;,
+    fill = &quot;Member Type&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_fill_manual(values = c(&quot;Annual Member&quot; = &quot;#00BFC4&quot;, &quot;Casual Rider&quot; = &quot;#F8766D&quot;)) +
+  scale_y_continuous(labels = comma)
+
+print(p_monthly_member)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
+<pre class="r"><code># Seasonal summary
+seasonal_summary &lt;- citibike_nj_analysis %&gt;%
+  group_by(season) %&gt;%
+  summarise(
+    n_rides = n(),
+    avg_duration = mean(ride_length_min),
+    total_hours = sum(ride_length_min) / 60,
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  mutate(percentage = n_rides / sum(n_rides) * 100)
+
+cat(&quot;\nSeasonal Summary for NJ Citi Bike:\n&quot;)</code></pre>
+<pre><code>## 
+## Seasonal Summary for NJ Citi Bike:</code></pre>
+<pre class="r"><code>kable(seasonal_summary, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">season</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+<th align="right">total_hours</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Winter</td>
+<td align="right">160769</td>
+<td align="right">9.5</td>
+<td align="right">25376.7</td>
+<td align="right">16.7</td>
+</tr>
+<tr class="even">
+<td align="left">Spring</td>
+<td align="right">232317</td>
+<td align="right">11.6</td>
+<td align="right">44844.9</td>
+<td align="right">24.2</td>
+</tr>
+<tr class="odd">
+<td align="left">Summer</td>
+<td align="right">307999</td>
+<td align="right">12.2</td>
+<td align="right">62824.5</td>
+<td align="right">32.0</td>
+</tr>
+<tr class="even">
+<td align="left">Fall</td>
+<td align="right">260711</td>
+<td align="right">10.5</td>
+<td align="right">45751.2</td>
+<td align="right">27.1</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Total rides by season
+p_seasonal_total &lt;- seasonal_summary %&gt;%
+  ggplot(aes(x = season, y = n_rides, fill = season)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  geom_text(aes(label = paste0(round(percentage, 1), &quot;%&quot;)), 
+            vjust = -0.5, size = 4) +
+  labs(
+    title = &quot;Ride Volume by Season in NJ Metro Area (Jan-Jun 2023)&quot;,
+    subtitle = &quot;Spring: Mar-May, Summer: Jun only&quot;,
+    x = &quot;Season&quot;,
+    y = &quot;Number of Rides&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    legend.position = &quot;none&quot;
+  ) +
+  scale_fill_viridis_d(option = &quot;C&quot;) +
+  scale_y_continuous(labels = comma)
+
+print(p_seasonal_total)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-9-3.png" width="672" /></p>
+<pre class="r"><code># ANALYSIS 2: TEMPORAL PATTERNS IN NJ METRO AREA
+
+cat(&quot;\n\n=== ANALYSIS 2: TEMPORAL PATTERNS IN NJ METRO AREA ===\n&quot;)</code></pre>
+<pre><code>## 
+## 
+## === ANALYSIS 2: TEMPORAL PATTERNS IN NJ METRO AREA ===</code></pre>
+<pre class="r"><code># Hourly patterns
+hourly_summary &lt;- citibike_nj_analysis %&gt;%
+  group_by(start_hour, day_type) %&gt;%
+  summarise(
+    n_rides = n(),
+    avg_duration = mean(ride_length_min),
+    .groups = &quot;drop&quot;
+  )
+
+# Peak hours
+peak_hours &lt;- hourly_summary %&gt;%
+  group_by(day_type) %&gt;%
+  slice_max(n_rides, n = 3) %&gt;%
+  arrange(day_type, desc(n_rides))
+
+cat(&quot;\nPeak Hours by Day Type in NJ Metro Area:\n&quot;)</code></pre>
+<pre><code>## 
+## Peak Hours by Day Type in NJ Metro Area:</code></pre>
+<pre class="r"><code>kable(peak_hours, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">start_hour</th>
+<th align="left">day_type</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">18</td>
+<td align="left">Weekday</td>
+<td align="right">77476</td>
+<td align="right">10.4</td>
+</tr>
+<tr class="even">
+<td align="right">17</td>
+<td align="left">Weekday</td>
+<td align="right">75508</td>
+<td align="right">10.3</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="left">Weekday</td>
+<td align="right">56707</td>
+<td align="right">8.6</td>
+</tr>
+<tr class="even">
+<td align="right">13</td>
+<td align="left">Weekend</td>
+<td align="right">19430</td>
+<td align="right">14.9</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="left">Weekend</td>
+<td align="right">19413</td>
+<td align="right">16.2</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="left">Weekend</td>
+<td align="right">19215</td>
+<td align="right">13.7</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Hourly patterns
+p_hourly_patterns &lt;- hourly_summary %&gt;%
+  ggplot(aes(x = start_hour, y = n_rides, color = day_type)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 1.5) +
+  labs(
+    title = &quot;Hourly Ride Patterns by Day Type in NJ Metro Area&quot;,
+    subtitle = &quot;Commute patterns visible on weekdays&quot;,
+    x = &quot;Hour of Day&quot;,
+    y = &quot;Number of Rides&quot;,
+    color = &quot;Day Type&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_color_manual(values = c(&quot;Weekday&quot; = &quot;#1f77b4&quot;, &quot;Weekend&quot; = &quot;#ff7f0e&quot;)) +
+  scale_x_continuous(breaks = seq(0, 23, by = 3)) +
+  scale_y_continuous(labels = comma)
+
+print(p_hourly_patterns)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code># Day of week analysis
+dow_summary &lt;- citibike_nj_analysis %&gt;%
+  group_by(day_of_week, day_type) %&gt;%
+  summarise(
+    n_rides = n(),
+    avg_duration = mean(ride_length_min),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  mutate(percentage = n_rides / sum(n_rides) * 100)
+
+cat(&quot;\nDay of Week Summary for NJ Citi Bike:\n&quot;)</code></pre>
+<pre><code>## 
+## Day of Week Summary for NJ Citi Bike:</code></pre>
+<pre class="r"><code>kable(dow_summary, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">day_of_week</th>
+<th align="left">day_type</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sun</td>
+<td align="left">Weekend</td>
+<td align="right">121742</td>
+<td align="right">14.7</td>
+<td align="right">12.7</td>
+</tr>
+<tr class="even">
+<td align="left">Mon</td>
+<td align="left">Weekday</td>
+<td align="right">130039</td>
+<td align="right">10.5</td>
+<td align="right">13.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Tue</td>
+<td align="left">Weekday</td>
+<td align="right">142311</td>
+<td align="right">10.1</td>
+<td align="right">14.8</td>
+</tr>
+<tr class="even">
+<td align="left">Wed</td>
+<td align="left">Weekday</td>
+<td align="right">148602</td>
+<td align="right">9.8</td>
+<td align="right">15.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Thu</td>
+<td align="left">Weekday</td>
+<td align="right">147393</td>
+<td align="right">9.9</td>
+<td align="right">15.3</td>
+</tr>
+<tr class="even">
+<td align="left">Fri</td>
+<td align="left">Weekday</td>
+<td align="right">142610</td>
+<td align="right">10.5</td>
+<td align="right">14.8</td>
+</tr>
+<tr class="odd">
+<td align="left">Sat</td>
+<td align="left">Weekend</td>
+<td align="right">129099</td>
+<td align="right">13.4</td>
+<td align="right">13.4</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Day of week patterns
+p_dow_patterns &lt;- dow_summary %&gt;%
+  ggplot(aes(x = day_of_week, y = n_rides, fill = day_type)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  labs(
+    title = &quot;Ride Volume by Day of Week in NJ Metro Area&quot;,
+    x = &quot;Day of Week&quot;,
+    y = &quot;Number of Rides&quot;,
+    fill = &quot;Day Type&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_fill_manual(values = c(&quot;Weekday&quot; = &quot;#1f77b4&quot;, &quot;Weekend&quot; = &quot;#ff7f0e&quot;)) +
+  scale_y_continuous(labels = comma)
+
+print(p_dow_patterns)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<pre class="r"><code># Heatmap: Hour × Day of week
+hour_dow_summary &lt;- citibike_nj_analysis %&gt;%
+  count(day_of_week, start_hour) %&gt;%
+  group_by(day_of_week) %&gt;%
+  mutate(percentage = n / max(n) * 100)
+
+p_heatmap &lt;- hour_dow_summary %&gt;%
+  ggplot(aes(x = start_hour, y = day_of_week, fill = percentage)) +
+  geom_tile() +
+  labs(
+    title = &quot;Heatmap: Ride Frequency by Hour and Day of Week in NJ Metro Area&quot;,
+    x = &quot;Hour of Day&quot;,
+    y = &quot;Day of Week&quot;,
+    fill = &quot;Relative\nFrequency (%)&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5)
+  ) +
+  scale_fill_gradient(low = &quot;white&quot;, high = &quot;steelblue&quot;) +
+  scale_x_continuous(breaks = seq(0, 23, by = 3))
+
+print(p_heatmap)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-10-3.png" width="672" /></p>
+<pre class="r"><code># ANALYSIS 3: RIDE DURATION ANALYSIS IN NJ METRO AREA
+
+cat(&quot;\n\n=== ANALYSIS 3: RIDE DURATION ANALYSIS IN NJ METRO AREA ===\n&quot;)</code></pre>
+<pre><code>## 
+## 
+## === ANALYSIS 3: RIDE DURATION ANALYSIS IN NJ METRO AREA ===</code></pre>
+<pre class="r"><code># Handle outliers using IQR method
+calculate_outlier_bounds &lt;- function(data, column) {
+  q1 &lt;- quantile(data[[column]], 0.25, na.rm = TRUE)
+  q3 &lt;- quantile(data[[column]], 0.75, na.rm = TRUE)
+  iqr &lt;- q3 - q1
+  lower_bound &lt;- q1 - 1.5 * iqr
+  upper_bound &lt;- q3 + 1.5 * iqr
+  return(list(lower = lower_bound, upper = upper_bound))
+}
+
+outlier_bounds &lt;- calculate_outlier_bounds(citibike_nj_analysis, &quot;ride_length_min&quot;)
+
+cat(sprintf(&quot;\nOutlier bounds (IQR method): Lower = %.1f min, Upper = %.1f min\n&quot;,
+            outlier_bounds$lower, outlier_bounds$upper))</code></pre>
+<pre><code>## 
+## Outlier bounds (IQR method): Lower = -5.0 min, Upper = 19.5 min</code></pre>
+<pre class="r"><code># Create dataset without extreme outliers
+duration_analysis &lt;- citibike_nj_analysis %&gt;%
+  filter(ride_length_min &lt;= outlier_bounds$upper)
+
+# Duration statistics
+duration_stats &lt;- duration_analysis %&gt;%
+  summarise(
+    n_rides = n(),
+    mean_duration = mean(ride_length_min),
+    median_duration = median(ride_length_min),
+    sd_duration = sd(ride_length_min),
+    q25 = quantile(ride_length_min, 0.25),
+    q75 = quantile(ride_length_min, 0.75)
+  )
+
+cat(&quot;\nRide Duration Statistics for NJ Citi Bike (excluding outliers):\n&quot;)</code></pre>
+<pre><code>## 
+## Ride Duration Statistics for NJ Citi Bike (excluding outliers):</code></pre>
+<pre class="r"><code>kable(duration_stats, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">n_rides</th>
+<th align="right">mean_duration</th>
+<th align="right">median_duration</th>
+<th align="right">sd_duration</th>
+<th align="right">q25</th>
+<th align="right">q75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">872183</td>
+<td align="right">6.9</td>
+<td align="right">6</td>
+<td align="right">3.9</td>
+<td align="right">4</td>
+<td align="right">8.8</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Duration distribution
+p_duration_dist &lt;- duration_analysis %&gt;%
+  ggplot(aes(x = ride_length_min)) +
+  geom_histogram(bins = 50, fill = &quot;steelblue&quot;, alpha = 0.7) +
+  geom_vline(aes(xintercept = mean(ride_length_min)), 
+             color = &quot;red&quot;, linetype = &quot;dashed&quot;, size = 1) +
+  labs(
+    title = &quot;Distribution of Ride Durations in NJ Metro Area&quot;,
+    subtitle = &quot;Red line shows mean duration&quot;,
+    x = &quot;Ride Duration (minutes)&quot;,
+    y = &quot;Frequency&quot;
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5)) +
+  xlim(0, min(120, outlier_bounds$upper))
+
+print(p_duration_dist)</code></pre>
+<pre><code>## Warning: Removed 2 rows containing missing values or values outside the
+## scale range (`geom_bar()`).</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre class="r"><code># Duration by member type
+duration_member &lt;- duration_analysis %&gt;%
+  group_by(member_type) %&gt;%
+  summarise(
+    n_rides = n(),
+    mean_duration = mean(ride_length_min),
+    median_duration = median(ride_length_min),
+    sd_duration = sd(ride_length_min),
+    .groups = &quot;drop&quot;
+  )
+
+cat(&quot;\nRide Duration by Member Type in NJ Metro Area:\n&quot;)</code></pre>
+<pre><code>## 
+## Ride Duration by Member Type in NJ Metro Area:</code></pre>
+<pre class="r"><code>kable(duration_member, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">member_type</th>
+<th align="right">n_rides</th>
+<th align="right">mean_duration</th>
+<th align="right">median_duration</th>
+<th align="right">sd_duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Annual Member</td>
+<td align="right">666521</td>
+<td align="right">6.5</td>
+<td align="right">5.6</td>
+<td align="right">3.7</td>
+</tr>
+<tr class="even">
+<td align="left">Casual Rider</td>
+<td align="right">205662</td>
+<td align="right">8.3</td>
+<td align="right">7.4</td>
+<td align="right">4.0</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Duration by member type
+p_duration_member &lt;- duration_analysis %&gt;%
+  ggplot(aes(x = ride_length_min, fill = member_type)) +
+  geom_density(alpha = 0.6) +
+  labs(
+    title = &quot;Ride Duration Distribution by Member Type in NJ Metro Area&quot;,
+    x = &quot;Ride Duration (minutes)&quot;,
+    y = &quot;Density&quot;,
+    fill = &quot;Member Type&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_fill_manual(values = c(&quot;Annual Member&quot; = &quot;#00BFC4&quot;, &quot;Casual Rider&quot; = &quot;#F8766D&quot;)) +
+  xlim(0, min(120, outlier_bounds$upper))
+
+print(p_duration_member)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-11-2.png" width="672" /></p>
+<pre class="r"><code># Duration by time of day
+duration_time &lt;- duration_analysis %&gt;%
+  group_by(time_of_day) %&gt;%
+  summarise(
+    mean_duration = mean(ride_length_min),
+    n_rides = n(),
+    .groups = &quot;drop&quot;
+  )
+
+cat(&quot;\nAverage Ride Duration by Time of Day in NJ Metro Area:\n&quot;)</code></pre>
+<pre><code>## 
+## Average Ride Duration by Time of Day in NJ Metro Area:</code></pre>
+<pre class="r"><code>kable(duration_time, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">time_of_day</th>
+<th align="right">mean_duration</th>
+<th align="right">n_rides</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Morning</td>
+<td align="right">6.4</td>
+<td align="right">252192</td>
+</tr>
+<tr class="even">
+<td align="left">Afternoon</td>
+<td align="right">7.2</td>
+<td align="right">246779</td>
+</tr>
+<tr class="odd">
+<td align="left">Evening</td>
+<td align="right">7.0</td>
+<td align="right">278330</td>
+</tr>
+<tr class="even">
+<td align="left">Night</td>
+<td align="right">7.1</td>
+<td align="right">94882</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Duration by time of day
+p_duration_time &lt;- duration_analysis %&gt;%
+  ggplot(aes(x = time_of_day, y = ride_length_min, fill = time_of_day)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    title = &quot;Ride Duration by Time of Day in NJ Metro Area&quot;,
+    x = &quot;Time of Day&quot;,
+    y = &quot;Ride Duration (minutes)&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = &quot;none&quot;
+  ) +
+  scale_fill_viridis_d(option = &quot;C&quot;) +
+  coord_cartesian(ylim = c(0, quantile(duration_analysis$ride_length_min, 0.95)))
+
+print(p_duration_time)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-11-3.png" width="672" /></p>
+<pre class="r"><code># ANALYSIS 4: USER TYPE COMPARISONS IN NJ METRO AREA
+
+cat(&quot;\n\n=== ANALYSIS 4: USER TYPE COMPARISONS IN NJ METRO AREA ===\n&quot;)</code></pre>
+<pre><code>## 
+## 
+## === ANALYSIS 4: USER TYPE COMPARISONS IN NJ METRO AREA ===</code></pre>
+<pre class="r"><code># Overall distribution
+member_dist &lt;- citibike_nj_analysis %&gt;%
+  count(member_type) %&gt;%
+  mutate(percentage = n / sum(n) * 100)
+
+cat(&quot;\nOverall Member Distribution in NJ Metro Area:\n&quot;)</code></pre>
+<pre><code>## 
+## Overall Member Distribution in NJ Metro Area:</code></pre>
+<pre class="r"><code>kable(member_dist, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">member_type</th>
+<th align="right">n</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Annual Member</td>
+<td align="right">709452</td>
+<td align="right">73.8</td>
+</tr>
+<tr class="even">
+<td align="left">Casual Rider</td>
+<td align="right">252344</td>
+<td align="right">26.2</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Member distribution pie chart
+p_member_pie &lt;- member_dist %&gt;%
+  ggplot(aes(x = &quot;&quot;, y = n, fill = member_type)) +
+  geom_bar(stat = &quot;identity&quot;, width = 1) +
+  coord_polar(&quot;y&quot;, start = 0) +
+  labs(
+    title = &quot;Overall Rider Type Distribution in NJ Metro Area&quot;,
+    fill = &quot;Rider Type&quot;
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_fill_manual(values = c(&quot;Annual Member&quot; = &quot;#00BFC4&quot;, &quot;Casual Rider&quot; = &quot;#F8766D&quot;)) +
+  geom_text(aes(label = paste0(round(percentage, 1), &quot;%&quot;)), 
+            position = position_stack(vjust = 0.5))
+
+print(p_member_pie)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<pre class="r"><code># Member patterns by day type
+member_daytype &lt;- citibike_nj_analysis %&gt;%
+  group_by(day_type, member_type) %&gt;%
+  summarise(
+    n_rides = n(),
+    avg_duration = mean(ride_length_min),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  group_by(day_type) %&gt;%
+  mutate(
+    total = sum(n_rides),
+    percentage = n_rides / total * 100
+  )
+
+cat(&quot;\nMember Distribution by Day Type in NJ Metro Area:\n&quot;)</code></pre>
+<pre><code>## 
+## Member Distribution by Day Type in NJ Metro Area:</code></pre>
+<pre class="r"><code>kable(member_daytype, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">day_type</th>
+<th align="left">member_type</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+<th align="right">total</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Weekday</td>
+<td align="left">Annual Member</td>
+<td align="right">548686</td>
+<td align="right">8.5</td>
+<td align="right">710955</td>
+<td align="right">77.2</td>
+</tr>
+<tr class="even">
+<td align="left">Weekday</td>
+<td align="left">Casual Rider</td>
+<td align="right">162269</td>
+<td align="right">15.8</td>
+<td align="right">710955</td>
+<td align="right">22.8</td>
+</tr>
+<tr class="odd">
+<td align="left">Weekend</td>
+<td align="left">Annual Member</td>
+<td align="right">160766</td>
+<td align="right">10.2</td>
+<td align="right">250841</td>
+<td align="right">64.1</td>
+</tr>
+<tr class="even">
+<td align="left">Weekend</td>
+<td align="left">Casual Rider</td>
+<td align="right">90075</td>
+<td align="right">20.7</td>
+<td align="right">250841</td>
+<td align="right">35.9</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Member patterns by day type
+p_member_daytype &lt;- member_daytype %&gt;%
+  ggplot(aes(x = day_type, y = percentage, fill = member_type)) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
+  labs(
+    title = &quot;Rider Type Distribution by Day Type in NJ Metro Area&quot;,
+    x = &quot;Day Type&quot;,
+    y = &quot;Percentage&quot;,
+    fill = &quot;Rider Type&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_fill_manual(values = c(&quot;Annual Member&quot; = &quot;#00BFC4&quot;, &quot;Casual Rider&quot; = &quot;#F8766D&quot;)) +
+  scale_y_continuous(labels = percent_format())
+
+print(p_member_daytype)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-12-2.png" width="672" /></p>
+<pre class="r"><code># Member patterns by time of day
+member_time &lt;- citibike_nj_analysis %&gt;%
+  group_by(time_of_day, member_type) %&gt;%
+  summarise(
+    n_rides = n(),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  group_by(time_of_day) %&gt;%
+  mutate(
+    total = sum(n_rides),
+    percentage = n_rides / total * 100
+  )
+
+# Plot: Member patterns by time of day
+p_member_time &lt;- member_time %&gt;%
+  ggplot(aes(x = time_of_day, y = percentage, fill = member_type)) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;dodge&quot;) +
+  labs(
+    title = &quot;Rider Type Distribution by Time of Day in NJ Metro Area&quot;,
+    x = &quot;Time of Day&quot;,
+    y = &quot;Percentage&quot;,
+    fill = &quot;Rider Type&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_fill_manual(values = c(&quot;Annual Member&quot; = &quot;#00BFC4&quot;, &quot;Casual Rider&quot; = &quot;#F8766D&quot;)) +
+  scale_y_continuous(labels = percent_format())
+
+print(p_member_time)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-12-3.png" width="672" /></p>
+<pre class="r"><code># Bike type preferences
+bike_member &lt;- citibike_nj_analysis %&gt;%
+  group_by(member_type, bike_type) %&gt;%
+  summarise(
+    n_rides = n(),
+    .groups = &quot;drop&quot;
+  ) %&gt;%
+  group_by(member_type) %&gt;%
+  mutate(
+    total = sum(n_rides),
+    percentage = n_rides / total * 100
+  )
+
+cat(&quot;\nBike Type Preference by Member Type in NJ Metro Area:\n&quot;)</code></pre>
+<pre><code>## 
+## Bike Type Preference by Member Type in NJ Metro Area:</code></pre>
+<pre class="r"><code>kable(bike_member, digits = 1)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">member_type</th>
+<th align="left">bike_type</th>
+<th align="right">n_rides</th>
+<th align="right">total</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Annual Member</td>
+<td align="left">Classic</td>
+<td align="right">627042</td>
+<td align="right">709452</td>
+<td align="right">88.4</td>
+</tr>
+<tr class="even">
+<td align="left">Annual Member</td>
+<td align="left">Electric</td>
+<td align="right">82410</td>
+<td align="right">709452</td>
+<td align="right">11.6</td>
+</tr>
+<tr class="odd">
+<td align="left">Casual Rider</td>
+<td align="left">Classic</td>
+<td align="right">205515</td>
+<td align="right">252344</td>
+<td align="right">81.4</td>
+</tr>
+<tr class="even">
+<td align="left">Casual Rider</td>
+<td align="left">Electric</td>
+<td align="right">44741</td>
+<td align="right">252344</td>
+<td align="right">17.7</td>
+</tr>
+<tr class="odd">
+<td align="left">Casual Rider</td>
+<td align="left">Docked</td>
+<td align="right">2088</td>
+<td align="right">252344</td>
+<td align="right">0.8</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Plot: Bike type preferences
+p_bike_member &lt;- bike_member %&gt;%
+  ggplot(aes(x = member_type, y = percentage, fill = bike_type)) +
+  geom_bar(stat = &quot;identity&quot;, position = &quot;stack&quot;) +
+  labs(
+    title = &quot;Bike Type Preference by Rider Type in NJ Metro Area&quot;,
+    x = &quot;Rider Type&quot;,
+    y = &quot;Percentage&quot;,
+    fill = &quot;Bike Type&quot;
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = &quot;bold&quot;, size = 14, hjust = 0.5),
+    legend.position = &quot;bottom&quot;
+  ) +
+  scale_fill_viridis_d(option = &quot;D&quot;) +
+  scale_y_continuous(labels = percent_format())
+
+print(p_bike_member)</code></pre>
+<p><img src="eda_files/figure-html/unnamed-chunk-12-4.png" width="672" /></p>
 
 
 
