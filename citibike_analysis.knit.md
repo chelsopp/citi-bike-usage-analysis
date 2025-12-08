@@ -2,7 +2,7 @@
 title: "CitiBike Data Analysis Pipeline - Jan to Jun 2023"
 subtitle: "Data Cleaning, Transformation, and Preliminary Analysis"
 author: "Aisha (aw3743) - Data Pipeline Lead"
-date: "`r format(Sys.Date(), '%B %d, %Y')`"
+date: "December 06, 2025"
 output:
   html_document:
     toc: true
@@ -21,13 +21,17 @@ toc-title: "Table of Contents"
 ## 1.1 Load Required Libraries
 
 
-```{r}
+
+``` r
 samp = rnorm(100)
 length(samp)
+```
+
+```
+## [1] 100
 ```
 
 # Section 2
 
 I can take the mean of the sample, too!
-The mean is `r mean(samp)`.
-
+The mean is -0.189183.
