@@ -807,7 +807,11 @@ p_bike_member <- bike_member %>%
 print(p_bike_member)
 ```
 
+View full analysis steps on [GitHub](https://github.com/chelsopp/citi-bike-usage-analysis/blob/main/analysis.Rmd)
+
 # Is there a statistically significant difference in average ride duration between annual members and casual riders?
+
+A Two-Sample T-test was conducted to investigate the association between citi bike member type and the time in ride duration, aiming to determine whether member types have statistically different ride durations. We hypothesized that ride duration would statistically differ between annual members and casual members.
 
 ```{r}
 #T-test: Difference in ride duration between member types
@@ -832,10 +836,13 @@ cat(sprintf("  95%% CI: [%.2f, %.2f]\n",
             ttest_result$conf.int[1], ttest_result$conf.int[2]))
 ```
 
-The t-test indicates a highly significant difference in ride durations between annual members and casual riders (p < 0.001). Casual riders consistently take longer trips, averaging 8.68 minutes more than members. The narrow 95% confidence interval (8.49–8.87 minutes) reinforces the reliability of this gap, suggesting a clear behavioral distinction: members use bikes for short, utilitarian trips, while casual riders tend toward longer, more leisure-oriented rides.
+The t-test indicates a highly significant difference in ride duration between annual members and casual riders (p < 0.001). Casual riders consistently take longer trips, averaging 8.68 minutes more than members. The narrow 95% confidence interval (8.49–8.87 minutes) reinforces the reliability of this gap, suggesting a clear behavioral distinction: members use bikes for short, work-related trips, while casual riders tend toward longer, more leisure-oriented rides.
 
 
 # Is there an association between a rider’s membership type and whether they ride on a weekday or weekend?
+
+A Chi-Square test of independence was conducted to investigate the association between member type and the day of the week, aiming to determine whether the member type of an individual's citi bike membership was independent of the day an individual uses the bike. We hypothesized that there would be a strong association between member type and day of week. 
+
 ```{r}
 # Chi-square test: Association between member type and day type
 member_day_table <- citibike_nj_analysis %>%
@@ -856,6 +863,10 @@ The chi-square test identifies a strong and statistically significant associatio
 
 
 # Does average ride duration differ significantly across the four seasons?
+
+A ANOVA test was conducted to investigate the association between season and ride time duration, aiming to determine whether average ride time duration varies across different types of seasons.
+We hypothesized that ride duration would statistically differ across season groups.
+
 ```{r}
 # ANOVA: Ride duration across seasons
 season_anova_data <- citibike_nj_analysis %>%

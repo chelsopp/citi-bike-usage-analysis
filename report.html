@@ -366,9 +366,44 @@ div.tocify {
 
 <div id="motivation" class="section level2">
 <h2>Motivation</h2>
+<p>Citi bikes plays a major role in sustainable transportation across
+New Jersey (NJ). As renewable and sustainable technologies become more
+prominent with the worsening climate crisis, green transportation
+methods like citi bikes will become increasingly important.
+Understanding when, where, and how riders use citi bikes can provide
+valuable insights into commuter behavior, infrastructure needs, and
+seasonal ridership trends. Our goal is to uncover meaningful patterns in
+trip frequency, duration, and geography that can help inform future
+improvements in the city’s bike-sharing system and offer recommendations
+on growing citi bike ridership.</p>
+<p>Research has shown that even the natural environment and greenspace
+have been shown to impact bike sharing utilization in urban areas
+(cite). Looking at how ridership trends are impacted by season, by rider
+type (member vs casual), and usage trends can add to the growing
+research on bike-sharing, a field which has only continued to expand in
+the years since it was first introduced to consumers.</p>
 </div>
 <div id="initial-questions" class="section level2">
 <h2>Initial Questions</h2>
+<p>At the beginning of our project, we had planned to look at bike
+sharing data from New York City, with a particular focus on the
+differences between bike usage between boroughs. However, as we began
+cleaning and analyzing the data, we realized that our data actually was
+drawn from Jersey City. As a result, our questions naturally began to
+shift. Additionally, due to the anonymous nature of the data collected,
+we were unable to track specific journeys, which did reduce our ability
+to examine our research question related to ride duration.</p>
+<div id="research-questions" class="section level4">
+<h4>Research Questions</h4>
+<ul>
+<li>How do usage patterns differ between annual members and casual
+riders?</li>
+<li>What temporal patterns exist in bike-sharing usage?</li>
+<li>Which stations and routes are most popular?</li>
+<li>How does bike type preference vary across user groups?</li>
+<li>What factors influence ride duration?</li>
+</ul>
+</div>
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
@@ -378,7 +413,7 @@ div.tocify {
 History Data via the <a href="https://citibikenyc.com/system-data">Citi
 Bike System Data portal</a>. This data is provided under the program’s
 data-use policy to enable developers, researchers, artists, and the
-public to analyze Citi Bike behavior. The historical trip data is
+public to analyze citi bike behavior. The historical trip data is
 updated daily and includes information for each ride including ride ID,
 type of rideable, start and end latitude/longitude, user type, etc.</p>
 <p>We downloaded the <a
@@ -398,7 +433,7 @@ observations and 14 variables.</p>
 <p>Then we reformatted and created new variables in our dataset for
 later analysis. We added the <code>ride_length_min</code> variable by
 subtracting the <code>ended_at</code> and <code>started_at</code>
-variable for each ride. Then we added the <code>time_of_day</code>
+variables for each ride. Then we added the <code>time_of_day</code>
 variable and assigned a time of day category (i.e. Morning, Afternoon,
 Evening, or Night) based on the <code>start_hour</code> variable for
 each observation. We also added the <code>day_type</code> variable and
@@ -412,11 +447,11 @@ season category (i.e. Winter, Spring, Summer, or Fall) based on the
 <code>start_month</code> variable for each observation. Then we added
 the <code>ride_length_category</code> variable and assigned a ride
 length category based on the <code>ride_length_min</code> variable for
-each observation (e.g. <code>ride_length_min</code> less than 10 mins is
-classified as “Short (&lt;10 min)”). Lastly, we added the
+each observation (e.g. <code>ride_length_min</code> less than 10 mins
+was classified as “Short (&lt;10 min)”). Lastly, we added the
 <code>nj_area</code> variable and assigned a New Jersey area category
-based on longitude value (e.g. <code>nj_area</code> is “Jersey City” for
-areas where longitude less than 74.03).</p>
+based on longitudinal value (e.g. <code>nj_area</code> is “Jersey City”
+for areas where the longitude less than 74.03).</p>
 <p>We converted character variables (e.g. <code>member_type</code>) to
 factor where appropriate with ordering in mind. Also, all date and time
 variables were changed to standard data and time formatting.</p>
@@ -426,6 +461,26 @@ the end time precedes the start time, and very short rides that began
 and ended at the same station.</p>
 <p>The new and reformatted dataset has 961796 observations and 28
 variables.</p>
+<p>Although we did not use all the variables in this dataset, we
+selected multiple key variables to investigate our research
+questions:</p>
+<p><code>ride_length_min</code>: Total amount of time of citi bike ride
+in minutes, categorized into 4 time intervals (e.g., Short (&lt;10 min),
+Medium (10–30 min), Long (30–60 min), and Very Long (&gt;60 min)).</p>
+<p><code>rideable_type</code>: Type of bike categorized as electric bike
+or classic bike</p>
+<p><code>day_type</code>: Weekday or Weekend</p>
+<p><code>day_of_week</code>: Day of the week in which duration of citi
+bike ride trip occurred</p>
+<p><code>season</code>: Winter, Spring, Summer, Fall</p>
+<p><code>member_type</code>: Citi bike member status categorized as
+annual member or casual rider</p>
+<p><code>start_month</code>: Calender month in which start of citi bike
+ride trip occurred</p>
+<p><code>start_hour</code>: Hour of the day in which start of citi bike
+ride trip occurred</p>
+<p><code>time_of_day</code>: Time of the day categorized as morning,
+afternoon, or evening</p>
 <p>To view more details about our data sources go to the <a
 href="data.html">Data</a> tab.</p>
 </div>
@@ -434,16 +489,533 @@ href="data.html">Data</a> tab.</p>
 <h2>Exploratory Data Analysis</h2>
 <p>Overall, we wanted conduct a series of statistical analyses to
 quantify how member type, day of the week, and seasonal factors
-influence riding behavior. To understand which predictor and outcome
-variables would be important for our analysis we examined patterns in NJ
-Citi Bike usage. In our exploratory data analysis (EDA), we examined
-ridership in New Jersey City by monthly and seasonal patterns, by
-temporal patterns, by user type, and patterns in ride duration.</p>
-<p>To learn more about our exploratory data analysis go to the <a
-href="EDA.html">EDA</a> tab.</p>
+influence riding behavior. This step aimed to identify potential
+patterns and relationships in NJ citi bike usage, providing a foundation
+for subsequent analyses. In our exploratory data analysis (EDA), we
+examined ridership in New Jersey City by monthly and seasonal patterns,
+by temporal patterns, by user type, and patterns in ride duration.</p>
+<div id="analysis-1-monthly-and-seasonal-patterns-in-new-jersey-city"
+class="section level4">
+<h4>Analysis 1: Monthly and seasonal patterns in New Jersey City</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">start_month</th>
+<th align="right">n_rides</th>
+<th align="right">percentage</th>
+<th align="right">avg_duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">January</td>
+<td align="right">54205</td>
+<td align="right">5.6</td>
+<td align="right">10.4</td>
+</tr>
+<tr class="even">
+<td align="left">February</td>
+<td align="right">49315</td>
+<td align="right">5.1</td>
+<td align="right">9.2</td>
+</tr>
+<tr class="odd">
+<td align="left">March</td>
+<td align="right">60674</td>
+<td align="right">6.3</td>
+<td align="right">9.6</td>
+</tr>
+<tr class="even">
+<td align="left">April</td>
+<td align="right">78280</td>
+<td align="right">8.1</td>
+<td align="right">11.6</td>
+</tr>
+<tr class="odd">
+<td align="left">May</td>
+<td align="right">93363</td>
+<td align="right">9.7</td>
+<td align="right">12.9</td>
+</tr>
+<tr class="even">
+<td align="left">June</td>
+<td align="right">94671</td>
+<td align="right">9.8</td>
+<td align="right">12.6</td>
+</tr>
+<tr class="odd">
+<td align="left">July</td>
+<td align="right">104012</td>
+<td align="right">10.8</td>
+<td align="right">12.6</td>
+</tr>
+<tr class="even">
+<td align="left">August</td>
+<td align="right">109316</td>
+<td align="right">11.4</td>
+<td align="right">11.6</td>
+</tr>
+<tr class="odd">
+<td align="left">September</td>
+<td align="right">91979</td>
+<td align="right">9.6</td>
+<td align="right">11.1</td>
+</tr>
+<tr class="even">
+<td align="left">October</td>
+<td align="right">94921</td>
+<td align="right">9.9</td>
+<td align="right">10.9</td>
+</tr>
+<tr class="odd">
+<td align="left">November</td>
+<td align="right">73811</td>
+<td align="right">7.7</td>
+<td align="right">9.3</td>
+</tr>
+<tr class="even">
+<td align="left">December</td>
+<td align="right">57249</td>
+<td align="right">6.0</td>
+<td align="right">8.8</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>The NJ Citi Bike 2023 data shows ridership peaking in July and August
+with over 100,000 rides each, while winter months have the lowest
+numbers. Average ride durations are longest in late spring and summer,
+around 12-13 minutes, and shortest in winter. Overall, bike usage rises
+in warmer months and falls as temperatures drop.</p>
+<p><img src="report_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>The monthly ridership in the NJ city shows that annual members
+consistently take more rides than casual riders throughout the year.
+Both groups see an increase in rides during the warmer months, peaking
+in July and August, before declining in the colder months. Annual
+members have a sharper rise and higher overall ridership compared to
+casual riders.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">season</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+<th align="right">total_hours</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Winter</td>
+<td align="right">160769</td>
+<td align="right">9.5</td>
+<td align="right">25376.7</td>
+<td align="right">16.7</td>
+</tr>
+<tr class="even">
+<td align="left">Spring</td>
+<td align="right">232317</td>
+<td align="right">11.6</td>
+<td align="right">44844.9</td>
+<td align="right">24.2</td>
+</tr>
+<tr class="odd">
+<td align="left">Summer</td>
+<td align="right">307999</td>
+<td align="right">12.2</td>
+<td align="right">62824.5</td>
+<td align="right">32.0</td>
+</tr>
+<tr class="even">
+<td align="left">Fall</td>
+<td align="right">260711</td>
+<td align="right">10.5</td>
+<td align="right">45751.2</td>
+<td align="right">27.1</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>The NJ City sees the highest ride volume in summer, accounting for
+32% of rides with an average duration of 12.2 minutes. The fall season
+follows with 27.1% of rides, then spring at 24.2%, which both having
+longer average durations than winter. Winter has the lowest ride count
+at 16.7%, with the shortest average ride duration of 9.5 minutes.
+Overall, ride frequency and duration peak in warmer seasons.</p>
 </div>
-<div id="analysis" class="section level2">
-<h2>Analysis</h2>
+<div id="analysis-2-temporal-patterns-in-nj-city"
+class="section level4">
+<h4>Analysis 2: Temporal patterns in NJ City</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="right">start_hour</th>
+<th align="left">day_type</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">18</td>
+<td align="left">Weekday</td>
+<td align="right">77476</td>
+<td align="right">10.4</td>
+</tr>
+<tr class="even">
+<td align="right">17</td>
+<td align="left">Weekday</td>
+<td align="right">75508</td>
+<td align="right">10.3</td>
+</tr>
+<tr class="odd">
+<td align="right">8</td>
+<td align="left">Weekday</td>
+<td align="right">56707</td>
+<td align="right">8.6</td>
+</tr>
+<tr class="even">
+<td align="right">13</td>
+<td align="left">Weekend</td>
+<td align="right">19430</td>
+<td align="right">14.9</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="left">Weekend</td>
+<td align="right">19413</td>
+<td align="right">16.2</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="left">Weekend</td>
+<td align="right">19215</td>
+<td align="right">13.7</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Weekday ridership displays distinct peaks, with a rise in ridership
+in the morning between 8–9 AM and a rise in ridership in the late
+afternoon between 4-6 PM. In contrast, weekend rides follow a smoother,
+flatter curve. Overall, weekday rides are substantially higher,
+reflecting typical workday travel behavior, while weekend activity is
+steadier and more leisure oriented.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">day_of_week</th>
+<th align="left">day_type</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Sun</td>
+<td align="left">Weekend</td>
+<td align="right">121742</td>
+<td align="right">14.7</td>
+<td align="right">12.7</td>
+</tr>
+<tr class="even">
+<td align="left">Mon</td>
+<td align="left">Weekday</td>
+<td align="right">130039</td>
+<td align="right">10.5</td>
+<td align="right">13.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Tue</td>
+<td align="left">Weekday</td>
+<td align="right">142311</td>
+<td align="right">10.1</td>
+<td align="right">14.8</td>
+</tr>
+<tr class="even">
+<td align="left">Wed</td>
+<td align="left">Weekday</td>
+<td align="right">148602</td>
+<td align="right">9.8</td>
+<td align="right">15.5</td>
+</tr>
+<tr class="odd">
+<td align="left">Thu</td>
+<td align="left">Weekday</td>
+<td align="right">147393</td>
+<td align="right">9.9</td>
+<td align="right">15.3</td>
+</tr>
+<tr class="even">
+<td align="left">Fri</td>
+<td align="left">Weekday</td>
+<td align="right">142610</td>
+<td align="right">10.5</td>
+<td align="right">14.8</td>
+</tr>
+<tr class="odd">
+<td align="left">Sat</td>
+<td align="left">Weekend</td>
+<td align="right">129099</td>
+<td align="right">13.4</td>
+<td align="right">13.4</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Ride volumes steadily rise from Monday and peak midweek on Wednesday
+and Thursday before decreasing slightly on Friday. Weekends show lower
+total rides but longer ride duration, suggesting possibly more leisure
+based trips compared to weekday commuting patterns.</p>
+<p><img src="report_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>The heatmap highlights strong weekday commuting patterns, with ride
+activity concentrated in the morning and especially in the late
+afternoon and early evening. Weekends show a more even distribution
+across midday hours, with fewer early morning rides and a less
+concentrated in the afternoon.</p>
+</div>
+<div id="analysis-3-ride-duration-analysis-in-nj-city"
+class="section level4">
+<h4>Analysis 3: Ride duration analysis in NJ city</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="right">n_rides</th>
+<th align="right">mean_duration</th>
+<th align="right">median_duration</th>
+<th align="right">sd_duration</th>
+<th align="right">q25</th>
+<th align="right">q75</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">872183</td>
+<td align="right">6.9</td>
+<td align="right">6</td>
+<td align="right">3.9</td>
+<td align="right">4</td>
+<td align="right">8.8</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>Ride durations are short overall, clustering around 4–8 minutes, with
+a median of 6 minutes and a long tail of less frequent longer trips. The
+distribution is right-skewed, indicating that while most rides are
+brief, a smaller share extend well beyond the mean duration of about 7
+minutes.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">member_type</th>
+<th align="right">n_rides</th>
+<th align="right">mean_duration</th>
+<th align="right">median_duration</th>
+<th align="right">sd_duration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Annual Member</td>
+<td align="right">666521</td>
+<td align="right">6.5</td>
+<td align="right">5.6</td>
+<td align="right">3.7</td>
+</tr>
+<tr class="even">
+<td align="left">Casual Rider</td>
+<td align="right">205662</td>
+<td align="right">8.3</td>
+<td align="right">7.4</td>
+<td align="right">4.0</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Annual members tend to take shorter, more consistent rides, while
+casual riders have noticeably longer trip durations on average.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">time_of_day</th>
+<th align="right">mean_duration</th>
+<th align="right">n_rides</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Morning</td>
+<td align="right">6.4</td>
+<td align="right">252192</td>
+</tr>
+<tr class="even">
+<td align="left">Afternoon</td>
+<td align="right">7.2</td>
+<td align="right">246779</td>
+</tr>
+<tr class="odd">
+<td align="left">Evening</td>
+<td align="right">7.0</td>
+<td align="right">278330</td>
+</tr>
+<tr class="even">
+<td align="left">Night</td>
+<td align="right">7.1</td>
+<td align="right">94882</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Ride durations vary slightly by time of day. Mornings are the
+shortest on average, while afternoons, evenings, and nights are slightly
+longer and have more variable trips. The overall pattern suggests that
+rides later in the day tend to be more leisurely or flexible compared to
+morning travel.</p>
+</div>
+<div id="analysis-4-user-type-comparisons-in-nj-city"
+class="section level4">
+<h4>Analysis 4: User type comparisons in NJ city</h4>
+<table>
+<thead>
+<tr class="header">
+<th align="left">member_type</th>
+<th align="right">n</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Annual Member</td>
+<td align="right">709452</td>
+<td align="right">73.8</td>
+</tr>
+<tr class="even">
+<td align="left">Casual Rider</td>
+<td align="right">252344</td>
+<td align="right">26.2</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Annual members make up the majority while casual riders account for a
+smaller share of bike usage.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">day_type</th>
+<th align="left">member_type</th>
+<th align="right">n_rides</th>
+<th align="right">avg_duration</th>
+<th align="right">total</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Weekday</td>
+<td align="left">Annual Member</td>
+<td align="right">548686</td>
+<td align="right">8.5</td>
+<td align="right">710955</td>
+<td align="right">77.2</td>
+</tr>
+<tr class="even">
+<td align="left">Weekday</td>
+<td align="left">Casual Rider</td>
+<td align="right">162269</td>
+<td align="right">15.8</td>
+<td align="right">710955</td>
+<td align="right">22.8</td>
+</tr>
+<tr class="odd">
+<td align="left">Weekend</td>
+<td align="left">Annual Member</td>
+<td align="right">160766</td>
+<td align="right">10.2</td>
+<td align="right">250841</td>
+<td align="right">64.1</td>
+</tr>
+<tr class="even">
+<td align="left">Weekend</td>
+<td align="left">Casual Rider</td>
+<td align="right">90075</td>
+<td align="right">20.7</td>
+<td align="right">250841</td>
+<td align="right">35.9</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>The data shows that annual members make up the majority of weekday
+riding, accounting for over three-quarters of trips, while casual riders
+make up a larger share on weekends. By time of day, annual members
+remain the majority in every time period, specifically their share is
+the highest in the morning when commuting is most common. However,
+annual member rides decline slightly later in the day as casual usage
+increases. Overall, the patterns reinforce that members drive weekday,
+commute oriented demand, while casual riders contribute more heavily
+during leisure times and weekends.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">member_type</th>
+<th align="left">bike_type</th>
+<th align="right">n_rides</th>
+<th align="right">total</th>
+<th align="right">percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Annual Member</td>
+<td align="left">Classic</td>
+<td align="right">627042</td>
+<td align="right">709452</td>
+<td align="right">88.4</td>
+</tr>
+<tr class="even">
+<td align="left">Annual Member</td>
+<td align="left">Electric</td>
+<td align="right">82410</td>
+<td align="right">709452</td>
+<td align="right">11.6</td>
+</tr>
+<tr class="odd">
+<td align="left">Casual Rider</td>
+<td align="left">Classic</td>
+<td align="right">205515</td>
+<td align="right">252344</td>
+<td align="right">81.4</td>
+</tr>
+<tr class="even">
+<td align="left">Casual Rider</td>
+<td align="left">Electric</td>
+<td align="right">44741</td>
+<td align="right">252344</td>
+<td align="right">17.7</td>
+</tr>
+<tr class="odd">
+<td align="left">Casual Rider</td>
+<td align="left">Docked</td>
+<td align="right">2088</td>
+<td align="right">252344</td>
+<td align="right">0.8</td>
+</tr>
+</tbody>
+</table>
+<p><img src="report_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p>The graph compares the distribution of bike types (classic, electric,
+and docked—used) by annual members compared to casual riders. Both
+groups mostly use classic bikes, but members use electric bikes slightly
+less often than casual riders. Casual riders also show a small amount of
+docked-bike usage, while members almost never use them.</p>
+</div>
+</div>
+<div id="statistical-analyses" class="section level2">
+<h2>Statistical Analyses</h2>
 <p>In this data analysis, we test to see if there is evidence to
 conclude an association between member type, day of week, or season and
 riding behavior. First, a t-test comparing ride duration by member type
@@ -457,11 +1029,146 @@ weekends compared to annual members. Finally, an ANOVA examined ride
 duration across seasons and found significant differences (F = 1,189, df
 = 3, p &lt; 0.001), demonstrating that rides tend to be longer or
 shorter depending on the season.</p>
-<p>To learn more about our data analysis go to the <a
-href="analysis.html">Analysis</a> tab.</p>
+<div
+id="is-there-a-statistically-significant-difference-in-average-ride-duration-between-annual-members-and-casual-riders"
+class="section level4">
+<h4>Is there a statistically significant difference in average ride
+duration between annual members and casual riders?</h4>
+<p>A Two-Sample T-test was conducted to investigate the association
+between citi bike member type and the time in ride duration, aiming to
+determine whether member types have statistically different ride
+durations. We hypothesized that ride duration would statistically differ
+between annual members and casual members.</p>
+<pre class="r"><code>#T-test: Difference in ride duration between member types
+casual_duration &lt;- citibike_nj_analysis %&gt;%
+  filter(member_casual == &quot;casual&quot;) %&gt;%
+  pull(ride_length_min)
+
+member_duration &lt;- citibike_nj_analysis %&gt;%
+  filter(member_casual == &quot;member&quot;) %&gt;%
+  pull(ride_length_min)
+
+ttest_result &lt;- t.test(casual_duration, member_duration, var.equal = FALSE)
+
+cat(sprintf(&quot;  t = %.2f\n&quot;, ttest_result$statistic))</code></pre>
+<pre><code>##   t = 88.63</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;  p-value = %s\n&quot;, 
+            ifelse(ttest_result$p.value &lt; 0.001,
+                   &quot;&lt; 0.001&quot;,
+                   sprintf(&quot;%.4f&quot;, ttest_result$p.value))))</code></pre>
+<pre><code>##   p-value = &lt; 0.001</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;  Mean difference: %.2f minutes\n&quot;,
+            mean(casual_duration) - mean(member_duration)))</code></pre>
+<pre><code>##   Mean difference: 8.68 minutes</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;  95%% CI: [%.2f, %.2f]\n&quot;,
+            ttest_result$conf.int[1], ttest_result$conf.int[2]))</code></pre>
+<pre><code>##   95% CI: [8.49, 8.87]</code></pre>
+<p>The t-test indicates a highly significant difference in ride duration
+between annual members and casual riders (p &lt; 0.001). Casual riders
+consistently take longer trips, averaging 8.68 minutes more than
+members. The narrow 95% confidence interval (8.49–8.87 minutes)
+reinforces the reliability of this gap, suggesting a clear behavioral
+distinction: members use bikes for short, work-related trips, while
+casual riders tend toward longer, more leisure-oriented rides.</p>
+</div>
+<div
+id="is-there-an-association-between-a-riders-membership-type-and-whether-they-ride-on-a-weekday-or-weekend"
+class="section level4">
+<h4>Is there an association between a rider’s membership type and
+whether they ride on a weekday or weekend?</h4>
+<p>A Chi-Square test of independence was conducted to investigate the
+association between member type and the day of the week, aiming to
+determine whether the member type of an individual’s citi bike
+membership was independent of the day an individual uses the bike. We
+hypothesized that there would be a strong association between member
+type and day of week.</p>
+<pre class="r"><code># Chi-square test: Association between member type and day type
+member_day_table &lt;- citibike_nj_analysis %&gt;%
+  count(member_casual, day_type) %&gt;%
+  pivot_wider(names_from = member_casual, values_from = n, values_fill = 0) %&gt;%
+  column_to_rownames(&quot;day_type&quot;)
+
+chisq_test &lt;- chisq.test(as.matrix(member_day_table))
+
+cat(sprintf(&quot;  X-squared = %.2f\n&quot;, chisq_test$statistic))</code></pre>
+<pre><code>##   X-squared = 16403.81</code></pre>
+<pre class="r"><code>cat(sprintf(&quot;  p-value = %s\n&quot;,
+            ifelse(chisq_test$p.value &lt; 0.001,
+                   &quot;&lt; 0.001&quot;,
+                   sprintf(&quot;%.4f&quot;, chisq_test$p.value))))</code></pre>
+<pre><code>##   p-value = &lt; 0.001</code></pre>
+<p>The chi-square test identifies a strong and statistically significant
+association between membership type and day type (weekday vs. weekend),
+with a large test statistic (X² = 16,403.81, df = 1, p &lt; 0.001). This
+means the distribution of rides across weekdays and weekends differs
+meaningfully by rider type. Casual riders are far more active on
+weekends, whereas annual members dominate weekday usage, supporting the
+idea that members use the system for routine commuting, while casual
+riders use it for recreational or occasional trips.</p>
+</div>
+<div
+id="does-average-ride-duration-differ-significantly-across-the-four-seasons"
+class="section level4">
+<h4>Does average ride duration differ significantly across the four
+seasons?</h4>
+<p>A ANOVA test was conducted to investigate the association between
+season and ride time duration, aiming to determine whether average ride
+time duration varies across different types of seasons. We hypothesized
+that ride duration would statistically differ across season groups.</p>
+<pre class="r"><code># ANOVA: Ride duration across seasons
+season_anova_data &lt;- citibike_nj_analysis %&gt;%
+  filter(ride_length_min &lt;= outlier_bounds$upper)
+
+season_anova &lt;- aov(ride_length_min ~ season, data = season_anova_data)
+season_anova_summary &lt;- summary(season_anova)
+
+print(season_anova_summary)</code></pre>
+<pre><code>##                 Df   Sum Sq Mean Sq F value Pr(&gt;F)    
+## season           3    52686   17562    1189 &lt;2e-16 ***
+## Residuals   872179 12883626      15                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>The ANOVA results show that ride duration varies significantly by
+season (F = 1,189, df = 3, p &lt; 0.001). This means not all seasons
+have the same average ride length—seasonal conditions likely influence
+how long riders choose to stay on the bikes. These differences may
+reflect weather patterns, tourism cycles, or seasonal variations in
+recreational activity, all of which appear to meaningfully affect riding
+behavior.</p>
+</div>
 </div>
 <div id="discussion" class="section level2">
 <h2>Discussion</h2>
+<p>Our analysis revealed stark contrast between member and casual user
+types. Annual members often used Citi Bikes for shorter durations with
+peak usage during commuting hours (8-9 AM, 5-6 PM) during the weekdays
+and a consistent usage drop on the weekends. Overall, these rides were
+shorter, point-to-point trips with strong preferences for transit hub
+stations. Casual riders had a much longer ride duration (97% longer)
+with peak usage during midday and afternoons. Weekends also tended to be
+more popular for casual riders compared to weekdays. These riders showed
+preference for longer, more exploratory trips with higher usage of
+waterfront and tourist-friendly locations.</p>
+<p>While member and casual users varied in ride durations, peak hourly
+usage, and preferred day types, they shared similarities in their
+seasonal trends and bike type preference. Overall, summer (June-August)
+was the most popular season for both user types, member and casual.
+While there was still moderate usage in both fall and spring, winter saw
+the least amount of Citi Bike utilization, with only core members using
+it. Additionally, both casual and member riders showed strong preference
+for classic bikes over e-bikes (despite wide e-bike availability).</p>
+<p>The 2023 Citi Bike usage data for the NJ city reveals a
+commuter-focused bike-sharing system with strong performance and clear
+usage patterns. Annual members drive the majority of usage with short
+trips concentrated around transit hubs and during traditional commuting
+hours. Casual riders, while representing a smaller portion of total
+usage, demonstrate distinct recreational patterns with longer trips and
+weekend preferences.</p>
+<p>The system successfully serves its dual purpose as both a
+transportation solution and recreational amenity. The concentration of
+usage at key transit stations like Grove St PATH and Hoboken Terminal
+demonstrates effective infrastructure placement and strong integration
+with the broader transportation network.</p>
 <div id="key-findings" class="section level4">
 <h4>Key findings</h4>
 <p>The NJ Citi Bike system functions primarily as a commuter service,
@@ -478,15 +1185,31 @@ of all rides.</p>
 </div>
 <div id="limitations" class="section level4">
 <h4>Limitations</h4>
+<p>This analysis is subject to several limitations that limit the depth
+and precision of the insights. The absence of weather data reduces the
+accuracy of seasonal trend assessments and missing end-station
+information for approximately 3,300 rides (0.3% of the dataset) may
+affect route based analyses. The anonymized nature of the data prevents
+tracking individual user journeys or behavior patterns, and demographic
+information is limited to membership type. Furthermore, the analysis is
+confined to 2023 data, limiting year-over-year comparisons. External
+factors, such as special events or construction, are also not captured,
+which may influence observed patterns.</p>
 </div>
 <div id="recommendations" class="section level4">
 <h4>Recommendations</h4>
 <ul>
-<li>Target casual riders with weekend/leisure promotions</li>
-<li>Ensure sufficient classic bike availability (high demand)</li>
-<li>Consider weather-based pricing or promotions</li>
-<li>Focus maintenance/availability during weekday commute peaks</li>
+<li>Expanding e-bike adoption through targeted incentives</li>
+<li>Optimizing seasonal operations to maintain engagement
+year-round</li>
+<li>Converting frequent casual riders to annual memberships</li>
+<li>Enhancing station capacity at high-traffic locations</li>
 </ul>
+<p>As bike-sharing continues to evolve as a critical component of urban
+transportation, the NJ city Citi Bike system demonstrates the viability
+and value of such programs in suburban transit-oriented communities.
+Continued data-driven optimization will ensure the system meets growing
+demand while maintaining operational efficiency.</p>
 </div>
 </div>
 

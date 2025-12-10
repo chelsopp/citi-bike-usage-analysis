@@ -333,8 +333,9 @@ cat(sprintf("  Most rides in: %s (%.1f%%)\n",
 
 ```
 
+View full EDA steps on [GitHub](https://github.com/chelsopp/citi-bike-usage-analysis/blob/main/eda.html)
 
-# Analysis 1: Monthly and seasonal patterns in New Jersey (NJ) City 
+#### Analysis 1: Monthly and seasonal patterns in New Jersey City 
 
 ```{r echo = FALSE}
 
@@ -416,7 +417,7 @@ p_monthly_member <- monthly_member %>%
 print(p_monthly_member)
 ```
 
-The monthly ridership in the NJ city area shows that annual members consistently take more rides than casual riders throughout the year. Both groups see an increase in rides during the warmer months, peaking in July and August, before declining in the colder months. Annual members have a sharper rise and higher overall ridership compared to casual riders.
+The monthly ridership in the NJ city shows that annual members consistently take more rides than casual riders throughout the year. Both groups see an increase in rides during the warmer months, peaking in July and August, before declining in the colder months. Annual members have a sharper rise and higher overall ridership compared to casual riders.
 
 ```{r echo = FALSE}
 # Seasonal summary
@@ -456,9 +457,9 @@ print(p_seasonal_total)
 
 ```
 
-The NJ City area sees the highest ride volume in summer, accounting for 32% of rides with an average duration of 12.2 minutes. Fall follows with 27.1% of rides, then spring at 24.2%, both having longer average durations than winter. Winter has the lowest ride count at 16.7%, with the shortest average ride duration of 9.5 minutes. Overall, ride frequency and duration peak in warmer seasons.
+The NJ City sees the highest ride volume in summer, accounting for 32% of rides with an average duration of 12.2 minutes. The fall season follows with 27.1% of rides, then spring at 24.2%, which both having longer average durations than winter. Winter has the lowest ride count at 16.7%, with the shortest average ride duration of 9.5 minutes. Overall, ride frequency and duration peak in warmer seasons.
 
-# Analysis 2: Temporal patterns in NJ City 
+#### Analysis 2: Temporal patterns in NJ City 
 
 ```{r echo = FALSE}
 # Hourly patterns
@@ -538,7 +539,7 @@ p_dow_patterns <- dow_summary %>%
 print(p_dow_patterns)
 ```
 
-Ride volumes steadily rise from Monday and peak midweek on Wednesday and Thursday before decreasing slightly on Friday. Weekends show lower total rides but longer ride duration, suggesting possible more leisure based trips compared to weekday commuting patterns.
+Ride volumes steadily rise from Monday and peak midweek on Wednesday and Thursday before decreasing slightly on Friday. Weekends show lower total rides but longer ride duration, suggesting possibly more leisure based trips compared to weekday commuting patterns.
 
 ```{r echo = FALSE}
 # Heatmap: Hour × Day of week
@@ -566,10 +567,11 @@ p_heatmap <- hour_dow_summary %>%
 print(p_heatmap)
 
 ```
-The heatmap highlights strong weekday commuting patterns, with ride activity concentrated in the morning and especially in the late afternoon and early evening. Weekends show a more even distribution across midday hours, with fewer early-morning rides and a less pronounced afternoon peak.
+
+The heatmap highlights strong weekday commuting patterns, with ride activity concentrated in the morning and especially in the late afternoon and early evening. Weekends show a more even distribution across midday hours, with fewer early morning rides and a less concentrated in the afternoon.
 
 
-# Analysis 3: Ride duration analysis in NJ city
+#### Analysis 3: Ride duration analysis in NJ city
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 # Handle outliers using IQR method
@@ -695,7 +697,7 @@ print(p_duration_time)
 
 Ride durations vary slightly by time of day. Mornings are the shortest on average, while afternoons, evenings, and nights are slightly longer and have more variable trips. The overall pattern suggests that rides later in the day tend to be more leisurely or flexible compared to morning travel.
 
-# Analysis 4: User type comparisons in NJ city
+#### Analysis 4: User type comparisons in NJ city
 
 ```{r echo = FALSE}
 # Overall distribution
@@ -726,7 +728,7 @@ p_member_pie <- member_dist %>%
 print(p_member_pie)
 ```
 
-Annual members make up the majority while casual riders account for a smaller share of usage.
+Annual members make up the majority while casual riders account for a smaller share of bike usage.
 
 ```{r echo = FALSE}
 # Member patterns by day type
@@ -802,7 +804,7 @@ p_member_time <- member_time %>%
 print(p_member_time)
 ```
 
-The data shows that annual members make up the majority of weekday riding, accounting for over three-quarters of trips, while casual riders make up a larger share on weekends. By time of day, annual members remain the majority in every time period, specifically their share is highest in the morning when commuting is most common. However, annual member rides decline slightly later in the day as casual usage increases. Overall, the patterns reinforce that members drive weekday, commute oriented demand, while casual riders contribute more heavily during leisure times and weekends.
+The data shows that annual members make up the majority of weekday riding, accounting for over three-quarters of trips, while casual riders make up a larger share on weekends. By time of day, annual members remain the majority in every time period, specifically their share is the highest in the morning when commuting is most common. However, annual member rides decline slightly later in the day as casual usage increases. Overall, the patterns reinforce that members drive weekday, commute oriented demand, while casual riders contribute more heavily during leisure times and weekends.
 
 ```{r echo = FALSE}
 # Bike type preferences

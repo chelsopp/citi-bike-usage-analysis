@@ -8,12 +8,12 @@ output: html_document
 
 **Aisha Waggeh (aw3743)**
 
-Aisha is second year MPH student in the Department of Epidemiology earning a certificate in Applied Biostatistics on the Public Health and Data Science.
+Aisha is a second year MPH student in the Department of Epidemiology earning a certificate in Applied Biostatistics and Public Health and Data Science.
 
 **Chelsey Oppan (co2616)**
 
-Chelsey is second year MPH student in the Department of Epidemiology earning a certificate in Applied Biostatistics on the Public Health and Data Science.
+Chelsey is a second year MPH student in the Department of Epidemiology earning a certificate in Applied Biostatistics and Public Health and Data Science.
 
 **Katherine Barter (kb3510)**
 
-Katherine is second year MPH student in the Department of Population and Family Health earning a certificate in Applied Biostatistics on the Public Health and Data Science.
+Katherine is a second year MPH student in the Department of Population and Family Health earning a certificate in 

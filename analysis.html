@@ -364,11 +364,18 @@ div.tocify {
 </div>
 
 
+<p>View full analysis steps on <a
+href="https://github.com/chelsopp/citi-bike-usage-analysis/blob/main/analysis.Rmd">GitHub</a></p>
 <div
 id="is-there-a-statistically-significant-difference-in-average-ride-duration-between-annual-members-and-casual-riders"
 class="section level1">
 <h1>Is there a statistically significant difference in average ride
 duration between annual members and casual riders?</h1>
+<p>A Two-Sample T-test was conducted to investigate the association
+between citi bike member type and the time in ride duration, aiming to
+determine whether member types have statistically different ride
+durations. We hypothesized that ride duration would statistically differ
+between annual members and casual members.</p>
 <pre class="r"><code>#T-test: Difference in ride duration between member types
 casual_duration &lt;- citibike_nj_analysis %&gt;%
   filter(member_casual == &quot;casual&quot;) %&gt;%
@@ -393,19 +400,25 @@ cat(sprintf(&quot;  t = %.2f\n&quot;, ttest_result$statistic))</code></pre>
 <pre class="r"><code>cat(sprintf(&quot;  95%% CI: [%.2f, %.2f]\n&quot;,
             ttest_result$conf.int[1], ttest_result$conf.int[2]))</code></pre>
 <pre><code>##   95% CI: [8.49, 8.87]</code></pre>
-<p>The t-test indicates a highly significant difference in ride
-durations between annual members and casual riders (p &lt; 0.001).
-Casual riders consistently take longer trips, averaging 8.68 minutes
-more than members. The narrow 95% confidence interval (8.49–8.87
-minutes) reinforces the reliability of this gap, suggesting a clear
-behavioral distinction: members use bikes for short, utilitarian trips,
-while casual riders tend toward longer, more leisure-oriented rides.</p>
+<p>The t-test indicates a highly significant difference in ride duration
+between annual members and casual riders (p &lt; 0.001). Casual riders
+consistently take longer trips, averaging 8.68 minutes more than
+members. The narrow 95% confidence interval (8.49–8.87 minutes)
+reinforces the reliability of this gap, suggesting a clear behavioral
+distinction: members use bikes for short, work-related trips, while
+casual riders tend toward longer, more leisure-oriented rides.</p>
 </div>
 <div
 id="is-there-an-association-between-a-riders-membership-type-and-whether-they-ride-on-a-weekday-or-weekend"
 class="section level1">
 <h1>Is there an association between a rider’s membership type and
 whether they ride on a weekday or weekend?</h1>
+<p>A Chi-Square test of independence was conducted to investigate the
+association between member type and the day of the week, aiming to
+determine whether the member type of an individual’s citi bike
+membership was independent of the day an individual uses the bike. We
+hypothesized that there would be a strong association between member
+type and day of week.</p>
 <pre class="r"><code># Chi-square test: Association between member type and day type
 member_day_table &lt;- citibike_nj_analysis %&gt;%
   count(member_casual, day_type) %&gt;%
@@ -435,6 +448,10 @@ id="does-average-ride-duration-differ-significantly-across-the-four-seasons"
 class="section level1">
 <h1>Does average ride duration differ significantly across the four
 seasons?</h1>
+<p>A ANOVA test was conducted to investigate the association between
+season and ride time duration, aiming to determine whether average ride
+time duration varies across different types of seasons. We hypothesized
+that ride duration would statistically differ across season groups.</p>
 <pre class="r"><code># ANOVA: Ride duration across seasons
 season_anova_data &lt;- citibike_nj_analysis %&gt;%
   filter(ride_length_min &lt;= outlier_bounds$upper)

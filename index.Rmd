@@ -6,9 +6,8 @@ output: html_document
 
 ![](images/homepage.gif)
 
-New Jersey City is always moving and so do Citi Bikes! Citi Bikes plays a major role in sustainable transportation across New Jersey City. Understanding when, where, and how riders use Citi Bikes can provide valuable insights into commuter behavior, infrastructure needs, and seasonal ridership trends. Our goal is to uncover meaningful patterns in trip frequency, duration, and geography that can help shape the future bike-share infrastructure and sustainable transportation of New Jersey City.
+New Jersey City is always moving and so do citi bikes! Citi bikes play a major role in sustainable transportation across New Jersey City. Understanding when, where, and how riders use citi bikes can provide valuable insights into commuter behavior, infrastructure needs, and seasonal ridership trends. Our goal is to uncover meaningful patterns in trip frequency, duration, and geography that can help shape future bike-share infrastructure and sustainable transportation of New Jersey City.
 
-## Overview of Citi Bikes in New Jersey City in 2023
 
 ```{r include=FALSE}
 library(tidyverse)
@@ -20,6 +19,7 @@ library(ggridges)
 library(ggplot2)
 library(plotly)
 library(leaflet)
+library(leafgl)
 library(viridis)
 library(scales)
 library(sf)
@@ -250,6 +250,31 @@ cat(sprintf("Date range: %s to %s\n",
             max(citibike_nj_analysis$start_date)))
 ```
 
+
+## Overview of Citi Bikes in New Jersey City in 2023
+
+Below is a map that pins the locations of citi bike stations in New Jersey City where riders began their ride trip. Clicking on a marker prompts a pop-up of the citi bike station name.
+
+
+```{r echo=FALSE}
+citibike_nj_fast <- citibike_nj_analysis %>%
+  mutate(
+    start_lat = round(start_lat, 5),
+    start_lng = round(start_lng, 5)
+  )
+
+leaflet(citibike_nj_fast) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addCircleMarkers(
+    lng = ~start_lng,
+    lat = ~start_lat,
+    radius = 2,
+    fillOpacity = 0.6,
+    fillColor = "blue",
+    stroke = FALSE,
+    popup = ~start_station_name
+  )
+```
 
  
 
