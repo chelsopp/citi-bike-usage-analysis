@@ -255,15 +255,10 @@ cat(sprintf("Date range: %s to %s\n",
 
 Below is a map that pins the locations of citi bike stations in New Jersey City where riders began their ride trip. Clicking on a marker prompts a pop-up of the citi bike station name.
 
-
-```{r echo=FALSE}
-citibike_nj_fast <- citibike_nj_analysis %>%
-  mutate(
-    start_lat = round(start_lat, 5),
-    start_lng = round(start_lng, 5)
-  )
-
-leaflet(citibike_nj_fast) %>%
+```{r, echo = FALSE}
+citibike_nj_analysis %>% 
+  filter(start_month == "December") %>% 
+  leaflet() %>% 
   addProviderTiles("CartoDB.Positron") %>%
   addCircleMarkers(
     lng = ~start_lng,
@@ -276,5 +271,4 @@ leaflet(citibike_nj_fast) %>%
   )
 ```
 
- 
 

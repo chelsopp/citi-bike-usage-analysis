@@ -15,7 +15,7 @@ navbar:
     - text: "Analysis"
       href: analysis.html
     - icon: fa-youtube fa-lg
-      href: https://github.com/chelsopp/citi-bike-usage-analysis
+      href: https://youtu.be/tRsNcIZCDWA
     - icon: fa-github fa-lg
       href: https://github.com/chelsopp/citi-bike-usage-analysis
 output:
