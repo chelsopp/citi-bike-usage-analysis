@@ -29,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -221,6 +224,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -228,6 +294,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -240,7 +316,7 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html"></a>
+      <a class="navbar-brand" href="index.html">Home</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -248,19 +324,19 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
 </li>
 <li>
-  <a href="data.html">Data Sources</a>
+  <a href="report.html">Report</a>
+</li>
+<li>
+  <a href="data.html">Data</a>
 </li>
 <li>
   <a href="eda.html">Exporatory Data Analysis</a>
 </li>
 <li>
   <a href="analysis.html">Analysis</a>
-</li>
-<li>
-  <a href="report.html">Report</a>
 </li>
 <li>
   <a href="https://github.com/chelsopp/citi-bike-usage-analysis">
@@ -288,13 +364,12 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code># STATISTICAL TESTS FOR NJ METRO AREA DATA
-
-cat(&quot;\n\n=== STATISTICAL TESTS FOR NJ METRO AREA DATA ===\n&quot;)</code></pre>
-<pre><code>## 
-## 
-## === STATISTICAL TESTS FOR NJ METRO AREA DATA ===</code></pre>
-<pre class="r"><code># 1. T-test: Difference in ride duration between member types
+<div
+id="is-there-a-statistically-significant-difference-in-average-ride-duration-between-annual-members-and-casual-riders"
+class="section level1">
+<h1>Is there a statistically significant difference in average ride
+duration between annual members and casual riders?</h1>
+<pre class="r"><code>#T-test: Difference in ride duration between member types
 casual_duration &lt;- citibike_nj_analysis %&gt;%
   filter(member_casual == &quot;casual&quot;) %&gt;%
   pull(ride_length_min)
@@ -305,13 +380,8 @@ member_duration &lt;- citibike_nj_analysis %&gt;%
 
 ttest_result &lt;- t.test(casual_duration, member_duration, var.equal = FALSE)
 
-cat(&quot;\n1. Welch Two Sample t-test (Casual vs Member Ride Duration in NJ):\n&quot;)</code></pre>
-<pre><code>## 
-## 1. Welch Two Sample t-test (Casual vs Member Ride Duration in NJ):</code></pre>
-<pre class="r"><code>cat(sprintf(&quot;  t = %.2f\n&quot;, ttest_result$statistic))</code></pre>
+cat(sprintf(&quot;  t = %.2f\n&quot;, ttest_result$statistic))</code></pre>
 <pre><code>##   t = 88.63</code></pre>
-<pre class="r"><code>cat(sprintf(&quot;  df = %.1f\n&quot;, ttest_result$parameter))</code></pre>
-<pre><code>##   df = 310262.9</code></pre>
 <pre class="r"><code>cat(sprintf(&quot;  p-value = %s\n&quot;, 
             ifelse(ttest_result$p.value &lt; 0.001,
                    &quot;&lt; 0.001&quot;,
@@ -323,7 +393,20 @@ cat(&quot;\n1. Welch Two Sample t-test (Casual vs Member Ride Duration in NJ):\n
 <pre class="r"><code>cat(sprintf(&quot;  95%% CI: [%.2f, %.2f]\n&quot;,
             ttest_result$conf.int[1], ttest_result$conf.int[2]))</code></pre>
 <pre><code>##   95% CI: [8.49, 8.87]</code></pre>
-<pre class="r"><code># 2. Chi-square test: Association between member type and day type
+<p>The t-test indicates a highly significant difference in ride
+durations between annual members and casual riders (p &lt; 0.001).
+Casual riders consistently take longer trips, averaging 8.68 minutes
+more than members. The narrow 95% confidence interval (8.49–8.87
+minutes) reinforces the reliability of this gap, suggesting a clear
+behavioral distinction: members use bikes for short, utilitarian trips,
+while casual riders tend toward longer, more leisure-oriented rides.</p>
+</div>
+<div
+id="is-there-an-association-between-a-riders-membership-type-and-whether-they-ride-on-a-weekday-or-weekend"
+class="section level1">
+<h1>Is there an association between a rider’s membership type and
+whether they ride on a weekday or weekend?</h1>
+<pre class="r"><code># Chi-square test: Association between member type and day type
 member_day_table &lt;- citibike_nj_analysis %&gt;%
   count(member_casual, day_type) %&gt;%
   pivot_wider(names_from = member_casual, values_from = n, values_fill = 0) %&gt;%
@@ -331,182 +414,53 @@ member_day_table &lt;- citibike_nj_analysis %&gt;%
 
 chisq_test &lt;- chisq.test(as.matrix(member_day_table))
 
-cat(&quot;\n2. Chi-square Test (Member Type × Day Type in NJ):\n&quot;)</code></pre>
-<pre><code>## 
-## 2. Chi-square Test (Member Type × Day Type in NJ):</code></pre>
-<pre class="r"><code>cat(sprintf(&quot;  X-squared = %.2f\n&quot;, chisq_test$statistic))</code></pre>
+cat(sprintf(&quot;  X-squared = %.2f\n&quot;, chisq_test$statistic))</code></pre>
 <pre><code>##   X-squared = 16403.81</code></pre>
-<pre class="r"><code>cat(sprintf(&quot;  df = %d\n&quot;, chisq_test$parameter))</code></pre>
-<pre><code>##   df = 1</code></pre>
 <pre class="r"><code>cat(sprintf(&quot;  p-value = %s\n&quot;,
             ifelse(chisq_test$p.value &lt; 0.001,
                    &quot;&lt; 0.001&quot;,
                    sprintf(&quot;%.4f&quot;, chisq_test$p.value))))</code></pre>
 <pre><code>##   p-value = &lt; 0.001</code></pre>
-<pre class="r"><code># 3. ANOVA: Ride duration across seasons
+<p>The chi-square test identifies a strong and statistically significant
+association between membership type and day type (weekday vs. weekend),
+with a large test statistic (X² = 16,403.81, df = 1, p &lt; 0.001). This
+means the distribution of rides across weekdays and weekends differs
+meaningfully by rider type. Casual riders are far more active on
+weekends, whereas annual members dominate weekday usage, supporting the
+idea that members use the system for routine commuting, while casual
+riders use it for recreational or occasional trips.</p>
+</div>
+<div
+id="does-average-ride-duration-differ-significantly-across-the-four-seasons"
+class="section level1">
+<h1>Does average ride duration differ significantly across the four
+seasons?</h1>
+<pre class="r"><code># ANOVA: Ride duration across seasons
 season_anova_data &lt;- citibike_nj_analysis %&gt;%
   filter(ride_length_min &lt;= outlier_bounds$upper)
 
 season_anova &lt;- aov(ride_length_min ~ season, data = season_anova_data)
 season_anova_summary &lt;- summary(season_anova)
 
-cat(&quot;\n3. ANOVA (Ride Duration Across Seasons in NJ):\n&quot;)</code></pre>
-<pre><code>## 
-## 3. ANOVA (Ride Duration Across Seasons in NJ):</code></pre>
-<pre class="r"><code>print(season_anova_summary)</code></pre>
+print(season_anova_summary)</code></pre>
 <pre><code>##                 Df   Sum Sq Mean Sq F value Pr(&gt;F)    
 ## season           3    52686   17562    1189 &lt;2e-16 ***
 ## Residuals   872179 12883626      15                   
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div id="summary-of-findings-interpretation" class="section level2">
-<h2><strong>SUMMARY OF FINDINGS &amp; INTERPRETATION</strong></h2>
-</div>
-<div id="section" class="section level2">
-<h2>============================================================================</h2>
-</div>
-<div id="data-characteristics" class="section level2">
-<h2>DATA CHARACTERISTICS</h2>
-</div>
-<div id="section-1" class="section level1">
-<h1>———————————————————-</h1>
-<ul>
-<li>The dataset consists of 961,796 rides from Jan-Dec 2023</li>
-<li>All data is from the NJ Citi Bike system (Hoboken/Jersey City
-area)</li>
-<li>Coordinates show 100% of rides originate west of -74.00° (NJ
-locations)</li>
-<li>Top station: Grove St PATH (44,993 rides)</li>
-</ul>
-<div id="rider-types" class="section level2">
-<h2>RIDER TYPES</h2>
-</div>
-<div id="section-2" class="section level2">
-<h2>———————————————————-</h2>
-<ul>
-<li>Annual Members: 73.8% of riders (709,452 rides)</li>
-<li>Casual Riders: 26.2% of riders (252,344 rides)</li>
-<li>Annual Members = Citibike subscribers with annual membership</li>
-<li>Casual Riders = single-ride or short-term pass users</li>
-</ul>
-</div>
-<div id="monthly-seasonal-patterns" class="section level2">
-<h2>MONTHLY &amp; SEASONAL PATTERNS</h2>
-</div>
-<div id="section-3" class="section level2">
-<h2>———————————————————-</h2>
-<ul>
-<li>Highest ridership: Summer (32% of annual rides)</li>
-<li>Lowest ridership: Winter (16.7% of annual rides)</li>
-<li>Peak month: August (109,316 rides, 11.4% of annual total)</li>
-<li>Ridership increases steadily from Jan to Aug, then declines</li>
-</ul>
-</div>
-<div id="daily-hourly-patterns" class="section level2">
-<h2>DAILY &amp; HOURLY PATTERNS</h2>
-</div>
-<div id="section-4" class="section level2">
-<h2>———————————————————-</h2>
-<ul>
-<li>WEEKDAY PATTERNS:
-<ul>
-<li>Peak hours: 5-6 PM (evening commute)</li>
-<li>Secondary peak: 8 AM (morning commute)</li>
-<li>Busiest day: Wednesday (148,602 rides)</li>
-</ul></li>
-</ul>
-</div>
-<div id="weekend-patterns" class="section level2">
-<h2>WEEKEND PATTERNS:</h2>
-<ul>
-<li>Peak hours: 12-3 PM (midday leisure)</li>
-<li>Different usage pattern than weekdays</li>
-<li>Saturday &amp; Sunday have similar ridership</li>
-</ul>
-</div>
-<div id="ride-duration" class="section level2">
-<h2>RIDE DURATION</h2>
-</div>
-<div id="section-5" class="section level2">
-<h2>———————————————————-</h2>
-<ul>
-<li>Overall average: 11.2 minutes</li>
-<li>Annual Members: 8.9 minutes average</li>
-<li>Casual Riders: 17.6 minutes average (nearly 2x longer!)</li>
-<li>Casual riders take significantly longer trips</li>
-</ul>
-</div>
-<div id="bike-preferences" class="section level2">
-<h2>BIKE PREFERENCES</h2>
-</div>
-<div id="section-6" class="section level2">
-<h2>———————————————————-</h2>
-<ul>
-<li>Classic bikes: 86.6% of rides (strong preference)</li>
-<li>Electric bikes: 13.2% of rides</li>
-<li>Docked bikes: 0.2% of rides</li>
-<li>Both member types prefer classic bikes</li>
-</ul>
-</div>
-<div id="statistical-analysis-results" class="section level2">
-<h2>STATISTICAL ANALYSIS RESULTS</h2>
-</div>
-<div id="section-7" class="section level2">
-<h2>———————————————————-</h2>
-<ol style="list-style-type: decimal">
-<li><strong>T-TEST</strong> (ride duration by member type):
-<ul>
-<li>p-value &lt; 0.001 (highly significant)</li>
-<li>Casual rides are 8.68 minutes longer on average</li>
-<li>95% Confidence Interval: [8.49, 8.87] minutes</li>
-</ul></li>
-<li><strong>CHI-SQUARE TEST</strong> (member type × day type):
-<ul>
-<li>p-value &lt; 0.001 (highly significant)</li>
-<li>X-squared = 16,403.81, df = 1</li>
-<li>Strong association: casual riders use more on weekends</li>
-</ul></li>
-<li><strong>ANOVA</strong> (ride duration across seasons):
-<ul>
-<li>p-value &lt; 0.001 (highly significant)</li>
-<li>F = 1,189, df = 3</li>
-<li>Ride durations vary significantly by season</li>
-</ul></li>
-</ol>
-</div>
-<div id="key-takeaways" class="section level2">
-<h2><strong>KEY TAKEAWAYS</strong></h2>
-</div>
-<div id="section-8" class="section level2">
-<h2>———————————————————-</h2>
-<ol style="list-style-type: decimal">
-<li><p>The NJ Citi Bike system serves primarily as a COMMUTER SERVICE
-(74% annual members, peak weekday commute hours)</p></li>
-<li><p>Casual and Annual members have DIFFERENT USAGE PATTERNS: * Annual
-members: Short weekday commutes (8.9 min avg) * Casual riders: Longer
-weekend trips (17.6 min avg)</p></li>
-<li><p>Weather strongly impacts ridership: * Summer has 2x more rides
-than winter * Ride durations also longer in warmer months</p></li>
-<li><p>Despite electric bike availability, CLASSIC BIKES DOMINATE
-(86.6%)</p></li>
-</ol>
-</div>
-<div id="recommendations" class="section level2">
-<h2><strong>RECOMMENDATIONS</strong></h2>
-</div>
-<div id="section-9" class="section level2">
-<h2>———————————————————-</h2>
-<ol style="list-style-type: decimal">
-<li>Target casual riders with weekend/leisure promotions</li>
-<li>Ensure sufficient classic bike availability (high demand)</li>
-<li>Consider weather-based pricing or promotions</li>
-<li>Focus maintenance/availability during weekday commute peaks</li>
-</ol>
-</div>
+<p>The ANOVA results show that ride duration varies significantly by
+season (F = 1,189, df = 3, p &lt; 0.001). This means not all seasons
+have the same average ride length—seasonal conditions likely influence
+how long riders choose to stay on the bikes. These differences may
+reflect weather patterns, tourism cycles, or seasonal variations in
+recreational activity, all of which appear to meaningfully affect riding
+behavior.</p>
 </div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -539,6 +493,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

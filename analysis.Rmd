@@ -1,8 +1,10 @@
 ---
 title: "Citi Bike Usage Analysis"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
 ---
-
 
 ```{r include=FALSE}
 library(tidyverse)
@@ -16,13 +18,11 @@ library(plotly)
 library(leaflet)
 library(viridis)
 library(scales)
-library(janitor)
 library(sf)
 library(dplyr)
 ```
 
 ```{r include=FALSE}
-# 1. DATA IMPORT AND COMBINATION
 
 # First, let's check the files in our data directory
 files <- list.files("data", pattern = "\\.csv$", full.names = TRUE)
@@ -48,38 +48,24 @@ col_types <- cols(
 )
 
 # Import and combine all monthly data files
-cat("\nImporting and combining data...\n")
 citibike_2023_raw <- files %>% 
   map_dfr(read_csv, 
           col_types = col_types,
           .id = "source_file")
 
-# Initial data inspection
-cat("\n=== INITIAL DATA INSPECTION ===\n")
-cat("Dataset dimensions:", dim(citibike_2023_raw), "\n")
-cat("Variable names:", names(citibike_2023_raw), "\n")
-cat("Date range:\n")
-cat("  Start:", min(citibike_2023_raw$started_at, na.rm = TRUE), "\n")
-cat("  End:", max(citibike_2023_raw$ended_at, na.rm = TRUE), "\n")
-
 # Clean variable names using janitor
 citibike_2023 <- citibike_2023_raw %>%
-  clean_names()
-
-cat("\nCleaned variable names:\n")
-cat(names(citibike_2023), "\n")
+  janitor::clean_names()
 
 ```
 
-
 ```{r include=FALSE}
-# 2. INITIAL DATA EXPLORATION
-
 # Quick look at the data
-cat("\nFirst few rows:\n")
+
+# First few rows:
 head(citibike_2023, 5)
 
-cat("\nLast few rows:\n")
+# Last few rows:
 tail(citibike_2023, 5)
 
 # Check for missing values
@@ -88,11 +74,7 @@ missing_summary <- citibike_2023 %>%
   pivot_longer(everything(), names_to = "variable", values_to = "missing_count") %>%
   arrange(desc(missing_count))
 
-cat("\n=== MISSING VALUE SUMMARY ===\n")
 print(missing_summary)
-
-# Basic summary statistics
-cat("\n=== BASIC SUMMARY STATISTICS ===\n")
 
 # Check member distribution
 member_summary <- citibike_2023 %>%
@@ -110,7 +92,7 @@ print(bike_summary)
 ```
 
 ```{r include=FALSE}
-# Create the cleaned dataset expected later in the analysis
+# Create an initial cleaned dataset
 
 citibike_2023_clean <- citibike_2023 %>%
   mutate(
@@ -156,20 +138,10 @@ cat("Created citibike_2023_clean with", format(nrow(citibike_2023_clean), big.ma
 ```
 
 ```{r include=FALSE}
-# 3. DATA CLEANING AND FILTERING
-
-cat("\n=== IMPORTANT DISCOVERY ===\n")
-cat("Analysis of coordinates reveals our data is primarily from New Jersey.\n")
-cat("The 'NYC filtering' actually filtered out very few rides.\n")
-cat("We will now analyze the NJ Citi Bike system data we actually have.\n\n")
 
 # Let's check what we actually filtered
 cat("Original dataset size:", format(nrow(citibike_2023), big.mark = ","), "\n")
 cat("After 'NYC filtering':", format(nrow(citibike_2023_clean), big.mark = ","), "\n")
-cat("Percentage kept:", round(nrow(citibike_2023_clean)/nrow(citibike_2023)*100, 1), "%\n")
-
-# Check the actual geographic distribution
-cat("\n=== ACTUAL GEOGRAPHIC DISTRIBUTION ===\n")
 
 # Check longitude distribution to confirm NJ location
 lng_summary <- citibike_2023_clean %>%
@@ -186,38 +158,12 @@ cat(sprintf("  Max: %.4f (Easternmost point)\n", lng_summary$max_start_lng))
 cat(sprintf("  Median: %.4f\n", lng_summary$median_start_lng))
 cat(sprintf("  Percentage west of -74.00: %.1f%% (typical NJ boundary)\n", lng_summary$pct_west_of_74))
 
-# Show top stations to confirm NJ location
-top_nj_stations <- citibike_2023_clean %>%
-  count(start_station_name, sort = TRUE) %>%
-  head(5)
-
-cat("\nTop 5 Stations (confirming NJ location):\n")
-for(i in 1:nrow(top_nj_stations)) {
-  cat(sprintf("  %d. %s: %s rides\n", 
-              i, 
-              top_nj_stations$start_station_name[i],
-              format(top_nj_stations$n[i], big.mark = ",")))
-}
-
-cat("\n=== CONFIRMATION ===\n")
-cat("Our data is from the NJ Citi Bike system (Hoboken/Jersey City area).\n")
-cat("We will proceed with analyzing this NJ Metro Area data.\n")
-
 ```
 
 ```{r include=FALSE}
-# 4. DATA PROCESSING
+# We created citibike_2023_clean in previous code
 
-# We already created citibike_2023_clean in your previous code
-# Let's check what it contains
-cat("\n=== CHECKING EXISTING CLEANED DATASET ===\n")
-cat(sprintf("citibike_2023_clean has: %s rows\n", format(nrow(citibike_2023_clean), big.mark = ",")))
-cat(sprintf("Date range: %s to %s\n", 
-            min(citibike_2023_clean$start_date), 
-            max(citibike_2023_clean$start_date)))
-
-
-# Let's check if the variables already exist
+# Let's check what variables already exist
 cat("\nChecking existing variables in citibike_2023_clean:\n")
 cat("ride_length_min exists:", "ride_length_min" %in% names(citibike_2023_clean), "\n")
 cat("start_date exists:", "start_date" %in% names(citibike_2023_clean), "\n")
@@ -270,7 +216,6 @@ if (!"ride_length_min" %in% names(citibike_2023_clean)) {
 }
 
 # Final check
-cat("\n=== FINAL DATASET CHECK ===\n")
 cat(sprintf("Final NJ dataset size: %s rides\n", format(nrow(citibike_2023_clean), big.mark = ",")))
 cat("Available variables:\n")
 cat(paste(names(citibike_2023_clean), collapse = ", "), "\n")
@@ -278,13 +223,6 @@ cat(paste(names(citibike_2023_clean), collapse = ", "), "\n")
 ```
 
 ```{r include=FALSE}
-# 5. DATA QUALITY CHECK AFTER CLEANING
-
-cat("\n=== DATA QUALITY CHECK AFTER CLEANING ===\n")
-cat("Final dataset size:", nrow(citibike_2023_clean), "\n")
-cat("Date range:", 
-    min(citibike_2023_clean$start_date), "to",
-    max(citibike_2023_clean$start_date), "\n")
 
 # Summary statistics by rider type
 summary_stats <- citibike_2023_clean %>%
@@ -302,14 +240,13 @@ summary_stats <- citibike_2023_clean %>%
     total_hours = round(total_hours, 0)
   )
 
-cat("\n=== SUMMARY STATISTICS BY RIDER TYPE ===\n")
 kable(summary_stats, digits = 1)
 
 ```
 
 ```{r include=FALSE}
 
-# Use our existing cleaned NJ dataset and adding NJ-specific variables
+# Using our existing cleaned NJ dataset and adding NJ-specific variables
 citibike_nj_analysis <- citibike_2023_clean %>%
   # Add NJ-specific variables
   mutate(
@@ -357,21 +294,19 @@ citibike_nj_analysis <- citibike_2023_clean %>%
     nj_area = factor(nj_area, levels = c("Hoboken", "Jersey City", "Other NJ Area"))
   )
 
-# Dataset summary
-cat("\n=== NJ Citi Bike Analysis Dataset Summary ===\n")
-cat(sprintf("Total NJ Metro Area rides: %s\n", format(nrow(citibike_nj_analysis), big.mark = ",")))
+cat(sprintf("Total NJ City Area rides: %s\n", format(nrow(citibike_nj_analysis), big.mark = ",")))
 cat(sprintf("Date range: %s to %s\n", 
             min(citibike_nj_analysis$start_date), 
             max(citibike_nj_analysis$start_date)))
-cat(sprintf("Primary service areas: %s\n", 
-            paste(levels(citibike_nj_analysis$nj_area), collapse = ", ")))
+```
+
+```{r include=FALSE}
 
 # Member distribution
 member_summary <- citibike_nj_analysis %>%
   count(member_type) %>%
   mutate(percentage = n / sum(n) * 100)
 
-cat("\nMember Distribution:\n")
 kable(member_summary, digits = 1)
 
 # Bike type distribution
@@ -379,7 +314,6 @@ bike_summary <- citibike_nj_analysis %>%
   count(bike_type) %>%
   mutate(percentage = n / sum(n) * 100)
 
-cat("\nBike Type Distribution:\n")
 kable(bike_summary, digits = 1)
 
 # NJ area distribution
@@ -387,11 +321,8 @@ nj_area_summary <- citibike_nj_analysis %>%
   count(nj_area) %>%
   mutate(percentage = n / sum(n) * 100)
 
-cat("\nNJ Area Distribution:\n")
 kable(nj_area_summary, digits = 1)
 
-# Quick overview
-cat(sprintf("\nKey Statistics:\n"))
 cat(sprintf("  Average ride duration: %.1f minutes\n", mean(citibike_nj_analysis$ride_length_min)))
 cat(sprintf("  Median ride duration: %.1f minutes\n", median(citibike_nj_analysis$ride_length_min)))
 cat(sprintf("  Most common bike type: %s (%.1f%%)\n", 
@@ -402,9 +333,8 @@ cat(sprintf("  Most rides in: %s (%.1f%%)\n",
 
 ```
 
-```{r include=FALSE}
 
-cat("\n\n=== ANALYSIS 1: MONTHLY AND SEASONAL PATTERNS IN NJ METRO AREA ===\n")
+```{r include=FALSE}
 
 # Monthly summary
 monthly_summary <- citibike_nj_analysis %>%
@@ -421,7 +351,6 @@ monthly_summary <- citibike_nj_analysis %>%
   ) %>%
   arrange(month_num)
 
-cat("\nMonthly Ride Summary for NJ Citi Bike:\n")
 kable(monthly_summary %>% select(start_month, n_rides, percentage, avg_duration), digits = 1)
 
 # Plot: Total rides per month
@@ -431,7 +360,7 @@ p_monthly_total <- monthly_summary %>%
   geom_text(aes(label = paste0(round(percentage, 1), "%")), 
             vjust = -0.5, size = 3.5) +
   labs(
-    title = "Monthly Ride Volume in NJ Metro Area (Jan-Jun 2023)",
+    title = "Monthly Ride Volume in NJ City (Jan-Jun 2023)",
     subtitle = "Percentage of total rides shown above bars",
     x = "Month",
     y = "Number of Rides"
@@ -444,8 +373,9 @@ p_monthly_total <- monthly_summary %>%
   scale_y_continuous(labels = comma)
 
 print(p_monthly_total)
+```
 
-# Monthly trends by member type
+```{r include=FALSE}
 monthly_member <- citibike_nj_analysis %>%
   group_by(start_month, member_type) %>%
   summarise(
@@ -464,7 +394,7 @@ p_monthly_member <- monthly_member %>%
   ggplot(aes(x = start_month, y = n_rides, fill = member_type)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
-    title = "Monthly Ridership by Member Type in NJ Metro Area",
+    title = "Monthly Ridership by Member Type in NJ City",
     x = "Month",
     y = "Number of Rides",
     fill = "Member Type"
@@ -479,7 +409,9 @@ p_monthly_member <- monthly_member %>%
   scale_y_continuous(labels = comma)
 
 print(p_monthly_member)
+```
 
+```{r include=FALSE}
 # Seasonal summary
 seasonal_summary <- citibike_nj_analysis %>%
   group_by(season) %>%
@@ -491,7 +423,6 @@ seasonal_summary <- citibike_nj_analysis %>%
   ) %>%
   mutate(percentage = n_rides / sum(n_rides) * 100)
 
-cat("\nSeasonal Summary for NJ Citi Bike:\n")
 kable(seasonal_summary, digits = 1)
 
 # Plot: Total rides by season
@@ -501,7 +432,7 @@ p_seasonal_total <- seasonal_summary %>%
   geom_text(aes(label = paste0(round(percentage, 1), "%")), 
             vjust = -0.5, size = 4) +
   labs(
-    title = "Ride Volume by Season in NJ Metro Area (Jan-Jun 2023)",
+    title = "Ride Volume by Season in NJ City Area (Jan-Jun 2023)",
     subtitle = "Spring: Mar-May, Summer: Jun only",
     x = "Season",
     y = "Number of Rides"
@@ -515,14 +446,9 @@ p_seasonal_total <- seasonal_summary %>%
   scale_y_continuous(labels = comma)
 
 print(p_seasonal_total)
-
 ```
 
 ```{r include=FALSE}
-# ANALYSIS 2: TEMPORAL PATTERNS IN NJ METRO AREA
-
-cat("\n\n=== ANALYSIS 2: TEMPORAL PATTERNS IN NJ METRO AREA ===\n")
-
 # Hourly patterns
 hourly_summary <- citibike_nj_analysis %>%
   group_by(start_hour, day_type) %>%
@@ -538,7 +464,6 @@ peak_hours <- hourly_summary %>%
   slice_max(n_rides, n = 3) %>%
   arrange(day_type, desc(n_rides))
 
-cat("\nPeak Hours by Day Type in NJ Metro Area:\n")
 kable(peak_hours, digits = 1)
 
 # Plot: Hourly patterns
@@ -547,7 +472,7 @@ p_hourly_patterns <- hourly_summary %>%
   geom_line(size = 1.2) +
   geom_point(size = 1.5) +
   labs(
-    title = "Hourly Ride Patterns by Day Type in NJ Metro Area",
+    title = "Hourly Ride Patterns by Day Type in NJ City",
     subtitle = "Commute patterns visible on weekdays",
     x = "Hour of Day",
     y = "Number of Rides",
@@ -563,7 +488,9 @@ p_hourly_patterns <- hourly_summary %>%
   scale_y_continuous(labels = comma)
 
 print(p_hourly_patterns)
+```
 
+```{r include=FALSE}
 # Day of week analysis
 dow_summary <- citibike_nj_analysis %>%
   group_by(day_of_week, day_type) %>%
@@ -574,7 +501,6 @@ dow_summary <- citibike_nj_analysis %>%
   ) %>%
   mutate(percentage = n_rides / sum(n_rides) * 100)
 
-cat("\nDay of Week Summary for NJ Citi Bike:\n")
 kable(dow_summary, digits = 1)
 
 # Plot: Day of week patterns
@@ -582,7 +508,7 @@ p_dow_patterns <- dow_summary %>%
   ggplot(aes(x = day_of_week, y = n_rides, fill = day_type)) +
   geom_bar(stat = "identity") +
   labs(
-    title = "Ride Volume by Day of Week in NJ Metro Area",
+    title = "Ride Volume by Day of Week in NJ City",
     x = "Day of Week",
     y = "Number of Rides",
     fill = "Day Type"
@@ -596,7 +522,9 @@ p_dow_patterns <- dow_summary %>%
   scale_y_continuous(labels = comma)
 
 print(p_dow_patterns)
+```
 
+```{r include=FALSE}
 # Heatmap: Hour × Day of week
 hour_dow_summary <- citibike_nj_analysis %>%
   count(day_of_week, start_hour) %>%
@@ -607,7 +535,7 @@ p_heatmap <- hour_dow_summary %>%
   ggplot(aes(x = start_hour, y = day_of_week, fill = percentage)) +
   geom_tile() +
   labs(
-    title = "Heatmap: Ride Frequency by Hour and Day of Week in NJ Metro Area",
+    title = "Heatmap: Ride Frequency by Hour and Day of Week in NJ City Area",
     x = "Hour of Day",
     y = "Day of Week",
     fill = "Relative\nFrequency (%)"
@@ -620,14 +548,9 @@ p_heatmap <- hour_dow_summary %>%
   scale_x_continuous(breaks = seq(0, 23, by = 3))
 
 print(p_heatmap)
-
 ```
 
 ```{r include=FALSE}
-# ANALYSIS 3: RIDE DURATION ANALYSIS IN NJ METRO AREA
-
-cat("\n\n=== ANALYSIS 3: RIDE DURATION ANALYSIS IN NJ METRO AREA ===\n")
-
 # Handle outliers using IQR method
 calculate_outlier_bounds <- function(data, column) {
   q1 <- quantile(data[[column]], 0.25, na.rm = TRUE)
@@ -639,9 +562,6 @@ calculate_outlier_bounds <- function(data, column) {
 }
 
 outlier_bounds <- calculate_outlier_bounds(citibike_nj_analysis, "ride_length_min")
-
-cat(sprintf("\nOutlier bounds (IQR method): Lower = %.1f min, Upper = %.1f min\n",
-            outlier_bounds$lower, outlier_bounds$upper))
 
 # Create dataset without extreme outliers
 duration_analysis <- citibike_nj_analysis %>%
@@ -658,7 +578,6 @@ duration_stats <- duration_analysis %>%
     q75 = quantile(ride_length_min, 0.75)
   )
 
-cat("\nRide Duration Statistics for NJ Citi Bike (excluding outliers):\n")
 kable(duration_stats, digits = 1)
 
 # Plot: Duration distribution
@@ -668,7 +587,7 @@ p_duration_dist <- duration_analysis %>%
   geom_vline(aes(xintercept = mean(ride_length_min)), 
              color = "red", linetype = "dashed", size = 1) +
   labs(
-    title = "Distribution of Ride Durations in NJ Metro Area",
+    title = "Distribution of Ride Durations in NJ City Area",
     subtitle = "Red line shows mean duration",
     x = "Ride Duration (minutes)",
     y = "Frequency"
@@ -678,7 +597,9 @@ p_duration_dist <- duration_analysis %>%
   xlim(0, min(120, outlier_bounds$upper))
 
 print(p_duration_dist)
+```
 
+```{r include=FALSE}
 # Duration by member type
 duration_member <- duration_analysis %>%
   group_by(member_type) %>%
@@ -690,7 +611,6 @@ duration_member <- duration_analysis %>%
     .groups = "drop"
   )
 
-cat("\nRide Duration by Member Type in NJ Metro Area:\n")
 kable(duration_member, digits = 1)
 
 # Plot: Duration by member type
@@ -698,7 +618,7 @@ p_duration_member <- duration_analysis %>%
   ggplot(aes(x = ride_length_min, fill = member_type)) +
   geom_density(alpha = 0.6) +
   labs(
-    title = "Ride Duration Distribution by Member Type in NJ Metro Area",
+    title = "Ride Duration Distribution by Member Type in NJ City Area",
     x = "Ride Duration (minutes)",
     y = "Density",
     fill = "Member Type"
@@ -712,7 +632,9 @@ p_duration_member <- duration_analysis %>%
   xlim(0, min(120, outlier_bounds$upper))
 
 print(p_duration_member)
+```
 
+```{r include=FALSE}
 # Duration by time of day
 duration_time <- duration_analysis %>%
   group_by(time_of_day) %>%
@@ -722,7 +644,6 @@ duration_time <- duration_analysis %>%
     .groups = "drop"
   )
 
-cat("\nAverage Ride Duration by Time of Day in NJ Metro Area:\n")
 kable(duration_time, digits = 1)
 
 # Plot: Duration by time of day
@@ -730,7 +651,7 @@ p_duration_time <- duration_analysis %>%
   ggplot(aes(x = time_of_day, y = ride_length_min, fill = time_of_day)) +
   geom_boxplot(alpha = 0.7) +
   labs(
-    title = "Ride Duration by Time of Day in NJ Metro Area",
+    title = "Ride Duration by Time of Day in NJ City Area",
     x = "Time of Day",
     y = "Ride Duration (minutes)"
   ) +
@@ -744,21 +665,14 @@ p_duration_time <- duration_analysis %>%
   coord_cartesian(ylim = c(0, quantile(duration_analysis$ride_length_min, 0.95)))
 
 print(p_duration_time)
-
 ```
 
-
 ```{r include=FALSE}
-# ANALYSIS 4: USER TYPE COMPARISONS IN NJ METRO AREA
-
-cat("\n\n=== ANALYSIS 4: USER TYPE COMPARISONS IN NJ METRO AREA ===\n")
-
 # Overall distribution
 member_dist <- citibike_nj_analysis %>%
   count(member_type) %>%
   mutate(percentage = n / sum(n) * 100)
 
-cat("\nOverall Member Distribution in NJ Metro Area:\n")
 kable(member_dist, digits = 1)
 
 # Plot: Member distribution pie chart
@@ -767,7 +681,7 @@ p_member_pie <- member_dist %>%
   geom_bar(stat = "identity", width = 1) +
   coord_polar("y", start = 0) +
   labs(
-    title = "Overall Rider Type Distribution in NJ Metro Area",
+    title = "Overall Rider Type Distribution in NJ City Area",
     fill = "Rider Type"
   ) +
   theme_void() +
@@ -780,7 +694,9 @@ p_member_pie <- member_dist %>%
             position = position_stack(vjust = 0.5))
 
 print(p_member_pie)
+```
 
+```{r include=FALSE}
 # Member patterns by day type
 member_daytype <- citibike_nj_analysis %>%
   group_by(day_type, member_type) %>%
@@ -795,7 +711,6 @@ member_daytype <- citibike_nj_analysis %>%
     percentage = n_rides / total * 100
   )
 
-cat("\nMember Distribution by Day Type in NJ Metro Area:\n")
 kable(member_daytype, digits = 1)
 
 # Plot: Member patterns by day type
@@ -803,7 +718,7 @@ p_member_daytype <- member_daytype %>%
   ggplot(aes(x = day_type, y = percentage, fill = member_type)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
-    title = "Rider Type Distribution by Day Type in NJ Metro Area",
+    title = "Rider Type Distribution by Day Type in NJ City Area",
     x = "Day Type",
     y = "Percentage",
     fill = "Rider Type"
@@ -817,7 +732,9 @@ p_member_daytype <- member_daytype %>%
   scale_y_continuous(labels = percent_format())
 
 print(p_member_daytype)
+```
 
+```{r include=FALSE}
 # Member patterns by time of day
 member_time <- citibike_nj_analysis %>%
   group_by(time_of_day, member_type) %>%
@@ -836,7 +753,7 @@ p_member_time <- member_time %>%
   ggplot(aes(x = time_of_day, y = percentage, fill = member_type)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
-    title = "Rider Type Distribution by Time of Day in NJ Metro Area",
+    title = "Rider Type Distribution by Time of Day in NJ City Area",
     x = "Time of Day",
     y = "Percentage",
     fill = "Rider Type"
@@ -851,7 +768,9 @@ p_member_time <- member_time %>%
   scale_y_continuous(labels = percent_format())
 
 print(p_member_time)
+```
 
+```{r include=FALSE}
 # Bike type preferences
 bike_member <- citibike_nj_analysis %>%
   group_by(member_type, bike_type) %>%
@@ -865,7 +784,6 @@ bike_member <- citibike_nj_analysis %>%
     percentage = n_rides / total * 100
   )
 
-cat("\nBike Type Preference by Member Type in NJ Metro Area:\n")
 kable(bike_member, digits = 1)
 
 # Plot: Bike type preferences
@@ -873,7 +791,7 @@ p_bike_member <- bike_member %>%
   ggplot(aes(x = member_type, y = percentage, fill = bike_type)) +
   geom_bar(stat = "identity", position = "stack") +
   labs(
-    title = "Bike Type Preference by Rider Type in NJ Metro Area",
+    title = "Bike Type Preference by Rider Type in NJ City Area",
     x = "Rider Type",
     y = "Percentage",
     fill = "Bike Type"
@@ -887,15 +805,12 @@ p_bike_member <- bike_member %>%
   scale_y_continuous(labels = percent_format())
 
 print(p_bike_member)
-
 ```
 
+# Is there a statistically significant difference in average ride duration between annual members and casual riders?
+
 ```{r}
-# STATISTICAL TESTS FOR NJ METRO AREA DATA
-
-cat("\n\n=== STATISTICAL TESTS FOR NJ METRO AREA DATA ===\n")
-
-# 1. T-test: Difference in ride duration between member types
+#T-test: Difference in ride duration between member types
 casual_duration <- citibike_nj_analysis %>%
   filter(member_casual == "casual") %>%
   pull(ride_length_min)
@@ -906,9 +821,7 @@ member_duration <- citibike_nj_analysis %>%
 
 ttest_result <- t.test(casual_duration, member_duration, var.equal = FALSE)
 
-cat("\n1. Welch Two Sample t-test (Casual vs Member Ride Duration in NJ):\n")
 cat(sprintf("  t = %.2f\n", ttest_result$statistic))
-cat(sprintf("  df = %.1f\n", ttest_result$parameter))
 cat(sprintf("  p-value = %s\n", 
             ifelse(ttest_result$p.value < 0.001,
                    "< 0.001",
@@ -917,8 +830,14 @@ cat(sprintf("  Mean difference: %.2f minutes\n",
             mean(casual_duration) - mean(member_duration)))
 cat(sprintf("  95%% CI: [%.2f, %.2f]\n",
             ttest_result$conf.int[1], ttest_result$conf.int[2]))
+```
 
-# 2. Chi-square test: Association between member type and day type
+The t-test indicates a highly significant difference in ride durations between annual members and casual riders (p < 0.001). Casual riders consistently take longer trips, averaging 8.68 minutes more than members. The narrow 95% confidence interval (8.49–8.87 minutes) reinforces the reliability of this gap, suggesting a clear behavioral distinction: members use bikes for short, utilitarian trips, while casual riders tend toward longer, more leisure-oriented rides.
+
+
+# Is there an association between a rider’s membership type and whether they ride on a weekday or weekend?
+```{r}
+# Chi-square test: Association between member type and day type
 member_day_table <- citibike_nj_analysis %>%
   count(member_casual, day_type) %>%
   pivot_wider(names_from = member_casual, values_from = n, values_fill = 0) %>%
@@ -926,113 +845,27 @@ member_day_table <- citibike_nj_analysis %>%
 
 chisq_test <- chisq.test(as.matrix(member_day_table))
 
-cat("\n2. Chi-square Test (Member Type × Day Type in NJ):\n")
 cat(sprintf("  X-squared = %.2f\n", chisq_test$statistic))
-cat(sprintf("  df = %d\n", chisq_test$parameter))
 cat(sprintf("  p-value = %s\n",
             ifelse(chisq_test$p.value < 0.001,
                    "< 0.001",
                    sprintf("%.4f", chisq_test$p.value))))
+```
 
-# 3. ANOVA: Ride duration across seasons
+The chi-square test identifies a strong and statistically significant association between membership type and day type (weekday vs. weekend), with a large test statistic (X² = 16,403.81, df = 1, p < 0.001). This means the distribution of rides across weekdays and weekends differs meaningfully by rider type. Casual riders are far more active on weekends, whereas annual members dominate weekday usage, supporting the idea that members use the system for routine commuting, while casual riders use it for recreational or occasional trips.
+
+
+# Does average ride duration differ significantly across the four seasons?
+```{r}
+# ANOVA: Ride duration across seasons
 season_anova_data <- citibike_nj_analysis %>%
   filter(ride_length_min <= outlier_bounds$upper)
 
 season_anova <- aov(ride_length_min ~ season, data = season_anova_data)
 season_anova_summary <- summary(season_anova)
 
-cat("\n3. ANOVA (Ride Duration Across Seasons in NJ):\n")
 print(season_anova_summary)
 
 ```
 
-
-## **SUMMARY OF FINDINGS & INTERPRETATION**
-## ============================================================================
-
-## DATA CHARACTERISTICS
-# ----------------------------------------------------------
-*   The dataset consists of 961,796 rides from Jan-Dec 2023
-*   All data is from the NJ Citi Bike system (Hoboken/Jersey City area)
-*   Coordinates show 100% of rides originate west of -74.00° (NJ locations)
-*   Top station: Grove St PATH (44,993 rides)
-
-## RIDER TYPES
-## ----------------------------------------------------------
-*   Annual Members: 73.8% of riders (709,452 rides)
-*   Casual Riders: 26.2% of riders (252,344 rides)
-*   Annual Members = Citibike subscribers with annual membership
-*   Casual Riders = single-ride or short-term pass users
-
-## MONTHLY & SEASONAL PATTERNS
-## ----------------------------------------------------------
-*   Highest ridership: Summer (32% of annual rides)
-*   Lowest ridership: Winter (16.7% of annual rides)
-*   Peak month: August (109,316 rides, 11.4% of annual total)
-*   Ridership increases steadily from Jan to Aug, then declines
-
-## DAILY & HOURLY PATTERNS
-## ----------------------------------------------------------
-*   WEEKDAY PATTERNS:
-    * Peak hours: 5-6 PM (evening commute)
-    * Secondary peak: 8 AM (morning commute)
-    * Busiest day: Wednesday (148,602 rides)
-
-## WEEKEND PATTERNS:
-*   Peak hours: 12-3 PM (midday leisure)
-*   Different usage pattern than weekdays
-*   Saturday & Sunday have similar ridership
-
-## RIDE DURATION
-## ----------------------------------------------------------
-*   Overall average: 11.2 minutes
-*   Annual Members: 8.9 minutes average
-*   Casual Riders: 17.6 minutes average (nearly 2x longer!)
-*   Casual riders take significantly longer trips
-
-## BIKE PREFERENCES
-## ----------------------------------------------------------
-*   Classic bikes: 86.6% of rides (strong preference)
-*   Electric bikes: 13.2% of rides
-*   Docked bikes: 0.2% of rides
-*   Both member types prefer classic bikes
-
-## STATISTICAL ANALYSIS RESULTS
-## ----------------------------------------------------------
-1.  **T-TEST** (ride duration by member type):
-    * p-value < 0.001 (highly significant)
-    * Casual rides are 8.68 minutes longer on average
-    * 95% Confidence Interval: [8.49, 8.87] minutes
-
-2.  **CHI-SQUARE TEST** (member type × day type):
-    * p-value < 0.001 (highly significant)
-    * X-squared = 16,403.81, df = 1
-    * Strong association: casual riders use more on weekends
-
-3.  **ANOVA** (ride duration across seasons):
-    * p-value < 0.001 (highly significant)
-    * F = 1,189, df = 3
-    * Ride durations vary significantly by season
-
-## **KEY TAKEAWAYS**
-## ----------------------------------------------------------
-1.  The NJ Citi Bike system serves primarily as a COMMUTER SERVICE
-    (74% annual members, peak weekday commute hours)
-
-2.   Casual and Annual members have DIFFERENT USAGE PATTERNS:
-    * Annual members: Short weekday commutes (8.9 min avg)
-    * Casual riders: Longer weekend trips (17.6 min avg)
-
-3.   Weather strongly impacts ridership:
-    * Summer has 2x more rides than winter
-    * Ride durations also longer in warmer months
-
-4.   Despite electric bike availability, CLASSIC BIKES DOMINATE (86.6%)
-
-## **RECOMMENDATIONS**
-## ----------------------------------------------------------
-1.  Target casual riders with weekend/leisure promotions
-2.  Ensure sufficient classic bike availability (high demand)
-3.  Consider weather-based pricing or promotions
-4.  Focus maintenance/availability during weekday commute peaks
-
+The ANOVA results show that ride duration varies significantly by season (F = 1,189, df = 3, p < 0.001). This means not all seasons have the same average ride length—seasonal conditions likely influence how long riders choose to stay on the bikes. These differences may reflect weather patterns, tourism cycles, or seasonal variations in recreational activity, all of which appear to meaningfully affect riding behavior.

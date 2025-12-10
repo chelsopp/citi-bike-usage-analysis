@@ -29,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -221,6 +224,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -228,6 +294,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -240,7 +316,7 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html"></a>
+      <a class="navbar-brand" href="index.html">Home</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -248,19 +324,19 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
 </li>
 <li>
-  <a href="data.html">Data Sources</a>
+  <a href="report.html">Report</a>
+</li>
+<li>
+  <a href="data.html">Data</a>
 </li>
 <li>
   <a href="eda.html">Exporatory Data Analysis</a>
 </li>
 <li>
   <a href="analysis.html">Analysis</a>
-</li>
-<li>
-  <a href="report.html">Report</a>
 </li>
 <li>
   <a href="https://github.com/chelsopp/citi-bike-usage-analysis">
@@ -288,10 +364,136 @@ $(document).ready(function () {
 </div>
 
 
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+</div>
+<div id="initial-questions" class="section level2">
+<h2>Initial Questions</h2>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<div id="sources" class="section level4">
+<h4>Sources</h4>
+<p>We located and downloaded the publicly available Citi Bike Trip
+History Data via the <a href="https://citibikenyc.com/system-data">Citi
+Bike System Data portal</a>. This data is provided under the program’s
+data-use policy to enable developers, researchers, artists, and the
+public to analyze Citi Bike behavior. The historical trip data is
+updated daily and includes information for each ride including ride ID,
+type of rideable, start and end latitude/longitude, user type, etc.</p>
+<p>We downloaded the <a
+href="https://s3.amazonaws.com/tripdata/index.html">JC Citi Bike Trip
+dataset</a> for the 2023 calender year, corresponding to 12 files dated
+202301 through 202312.</p>
+</div>
+<div id="cleaning" class="section level4">
+<h4>Cleaning</h4>
+<p>The 12 monthly files are .csv files, so they were imported with
+<code>read_csv</code>. We encoded the data with the variable classes
+outlined by the Citi Bike data structure (e.g. <code>ride_id</code>
+variable was coded as a character instead of numeric). Then .csv files
+were merged into one dataset. Also, variable names were cleaned with
+<code>janitor::clean_names</code>. The initial dataset had 988851
+observations and 14 variables.</p>
+<p>Then we reformatted and created new variables in our dataset for
+later analysis. We added the <code>ride_length_min</code> variable by
+subtracting the <code>ended_at</code> and <code>started_at</code>
+variable for each ride. Then we added the <code>time_of_day</code>
+variable and assigned a time of day category (i.e. Morning, Afternoon,
+Evening, or Night) based on the <code>start_hour</code> variable for
+each observation. We also added the <code>day_type</code> variable and
+assigned the type of day category (i.e. Weekday or Weekend) based on the
+<code>start_day</code> variable for each observation. The
+<code>rideable_type</code> variable was renamed to a clearer variable
+called <code>bike type</code> and names under this field were
+standardized into clearer categories (e.g. electric_bike renamed to
+Electric). We added the <code>season</code> variable and assigned a
+season category (i.e. Winter, Spring, Summer, or Fall) based on the
+<code>start_month</code> variable for each observation. Then we added
+the <code>ride_length_category</code> variable and assigned a ride
+length category based on the <code>ride_length_min</code> variable for
+each observation (e.g. <code>ride_length_min</code> less than 10 mins is
+classified as “Short (&lt;10 min)”). Lastly, we added the
+<code>nj_area</code> variable and assigned a New Jersey area category
+based on longitude value (e.g. <code>nj_area</code> is “Jersey City” for
+areas where longitude less than 74.03).</p>
+<p>We converted character variables (e.g. <code>member_type</code>) to
+factor where appropriate with ordering in mind. Also, all date and time
+variables were changed to standard data and time formatting.</p>
+<p>Unnecessary data or problematic trips were filtered out such as rides
+shorter than one minute, rides lasting more than 24 hours, trips where
+the end time precedes the start time, and very short rides that began
+and ended at the same station.</p>
+<p>The new and reformatted dataset has 961796 observations and 28
+variables.</p>
+<p>To view more details about our data sources go to the <a
+href="data.html">Data</a> tab.</p>
+</div>
+</div>
+<div id="exploratory-data-analysis" class="section level2">
+<h2>Exploratory Data Analysis</h2>
+<p>Overall, we wanted conduct a series of statistical analyses to
+quantify how member type, day of the week, and seasonal factors
+influence riding behavior. To understand which predictor and outcome
+variables would be important for our analysis we examined patterns in NJ
+Citi Bike usage. In our exploratory data analysis (EDA), we examined
+ridership in New Jersey City by monthly and seasonal patterns, by
+temporal patterns, by user type, and patterns in ride duration.</p>
+<p>To learn more about our exploratory data analysis go to the <a
+href="EDA.html">EDA</a> tab.</p>
+</div>
+<div id="analysis" class="section level2">
+<h2>Analysis</h2>
+<p>In this data analysis, we test to see if there is evidence to
+conclude an association between member type, day of week, or season and
+riding behavior. First, a t-test comparing ride duration by member type
+revealed that casual riders take significantly longer trips than annual
+members, with an average difference of 8.68 minutes and a highly
+significant p-value (&lt; 0.001, 95% CI: 8.49–8.87 minutes). Next, a
+chi-square test evaluated the relationship between member type and day
+type, showing a strong association (X² = 16,403.81, df = 1, p &lt;
+0.001), indicating that casual riders are disproportionately active on
+weekends compared to annual members. Finally, an ANOVA examined ride
+duration across seasons and found significant differences (F = 1,189, df
+= 3, p &lt; 0.001), demonstrating that rides tend to be longer or
+shorter depending on the season.</p>
+<p>To learn more about our data analysis go to the <a
+href="analysis.html">Analysis</a> tab.</p>
+</div>
+<div id="discussion" class="section level2">
+<h2>Discussion</h2>
+<div id="key-findings" class="section level4">
+<h4>Key findings</h4>
+<p>The NJ Citi Bike system functions primarily as a commuter service,
+reflected in the fact that 74% of all rides are taken by annual members
+and that usage peaks during typical weekday commuting hours. These
+annual members generally take short, efficiency-focused trips, averaging
+8.9 minutes, while casual riders exhibit a different pattern altogether,
+favoring longer, more leisurely weekend rides that average 17.6 minutes.
+Ridership also varies significantly with weather: summer produces
+roughly twice as many trips as winter, and ride duration tend to
+increase during warmer months. Even with electric bikes available,
+classic bikes overwhelmingly dominate system usage, accounting for 86.6%
+of all rides.</p>
+</div>
+<div id="limitations" class="section level4">
+<h4>Limitations</h4>
+</div>
+<div id="recommendations" class="section level4">
+<h4>Recommendations</h4>
+<ul>
+<li>Target casual riders with weekend/leisure promotions</li>
+<li>Ensure sufficient classic bike availability (high demand)</li>
+<li>Consider weather-based pricing or promotions</li>
+<li>Focus maintenance/availability during weekday commute peaks</li>
+</ul>
+</div>
+</div>
 
 
 
-
+</div>
+</div>
 
 </div>
 
@@ -324,6 +526,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

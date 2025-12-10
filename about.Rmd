@@ -1,10 +1,19 @@
 ---
-title: "About this website"
+title: "About US"
 output: html_document
 ---
 
 
-This website was coded by me using RMarkdown to do all the hard work.
+## Meet the Team Members!
 
+**Aisha Waggeh (aw3743)**
 
-Go back to the [homepage](index.html).
+Aisha is second year MPH student in the Department of Epidemiology earning a certificate in Applied Biostatistics on the Public Health and Data Science.
+
+**Chelsey Oppan (co2616)**
+
+Chelsey is second year MPH student in the Department of Epidemiology earning a certificate in Applied Biostatistics on the Public Health and Data Science.
+
+**Katherine Barter (kb3510)**
+
+Katherine is second year MPH student in the Department of Population and Family Health earning a certificate in Applied Biostatistics on the Public Health and Data Science.

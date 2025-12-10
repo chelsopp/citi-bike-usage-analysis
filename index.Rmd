@@ -1,9 +1,6 @@
 ---
 title: "Exploring Citi Bike Usage Patterns Across Time and Space in New Jersey City"
-output: 
-  html_document:
-    toc: true
-    toc_float: true
+output: html_document
 ---
  
 
@@ -13,11 +10,246 @@ New Jersey City is always moving and so do Citi Bikes! Citi Bikes plays a major 
 
 ## Overview of Citi Bikes in New Jersey City in 2023
 
+```{r include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(readxl)
+library(knitr)
+library(patchwork)
+library(ggridges)
+library(ggplot2)
+library(plotly)
+library(leaflet)
+library(viridis)
+library(scales)
+library(sf)
+library(dplyr)
+```
 
-## Meet the Team Members
+```{r include=FALSE}
 
-Aisha Waggeh (aw3743), Chelsey Oppan (co2616), Katherine Barter (kb3510)
- 
+# First, let's check the files in our data directory
+files <- list.files("data", pattern = "\\.csv$", full.names = TRUE)
+
+cat("Found", length(files), "files in data directory:\n")
+cat(paste(files, collapse = "\n"), "\n")
+
+# Define column types based on Citi Bike data structure
+col_types <- cols(
+  ride_id = col_character(),
+  rideable_type = col_character(),
+  started_at = col_datetime(format = ""),
+  ended_at = col_datetime(format = ""),
+  start_station_name = col_character(),
+  start_station_id = col_character(),
+  end_station_name = col_character(),
+  end_station_id = col_character(),
+  start_lat = col_double(),
+  start_lng = col_double(),
+  end_lat = col_double(),
+  end_lng = col_double(),
+  member_casual = col_character()
+)
+
+# Import and combine all monthly data files
+citibike_2023_raw <- files %>% 
+  map_dfr(read_csv, 
+          col_types = col_types,
+          .id = "source_file")
+
+# Clean variable names using janitor
+citibike_2023 <- citibike_2023_raw %>%
+  janitor::clean_names()
+
+```
+
+```{r include=FALSE}
+# Create an initial cleaned dataset
+
+citibike_2023_clean <- citibike_2023 %>%
+  mutate(
+    # ride length
+    ride_length_min = as.numeric(difftime(ended_at, started_at, units = "mins")),
+    
+    # Date/time components
+    start_date = as_date(started_at),
+    start_hour = hour(started_at),
+    start_month = month(started_at, label = TRUE, abbr = FALSE),
+    start_day = wday(started_at, label = TRUE, abbr = FALSE),
+    start_year = year(started_at),
+
+    # time of day category
+    time_of_day = case_when(
+      start_hour >= 5 & start_hour < 12 ~ "Morning",
+      start_hour >= 12 & start_hour < 17 ~ "Afternoon",
+      start_hour >= 17 & start_hour < 21 ~ "Evening",
+      TRUE ~ "Night"
+    ),
+
+    # bike type cleaned
+    bike_type = case_when(
+      rideable_type == "electric_bike" ~ "Electric",
+      rideable_type == "classic_bike"  ~ "Classic",
+      rideable_type == "docked_bike"   ~ "Docked",
+      TRUE ~ "Other"
+    ),
+
+    # weekend vs weekday
+    day_type = ifelse(start_day %in% c("Saturday", "Sunday"), "Weekend", "Weekday")
+  ) %>%
+  # remove problematic/unrealistic rides
+  filter(
+    ride_length_min >= 1,
+    ride_length_min <= 24 * 60,
+    started_at < ended_at,
+    !(start_station_id == end_station_id & ride_length_min < 2)
+  )
+
+cat("Created citibike_2023_clean with", format(nrow(citibike_2023_clean), big.mark=","), "rows\n")
+
+```
+
+```{r include=FALSE}
+
+# Let's check what we actually filtered
+cat("Original dataset size:", format(nrow(citibike_2023), big.mark = ","), "\n")
+cat("After 'NYC filtering':", format(nrow(citibike_2023_clean), big.mark = ","), "\n")
+
+# Check longitude distribution to confirm NJ location
+lng_summary <- citibike_2023_clean %>%
+  summarise(
+    min_start_lng = min(start_lng, na.rm = TRUE),
+    max_start_lng = max(start_lng, na.rm = TRUE),
+    median_start_lng = median(start_lng, na.rm = TRUE),
+    pct_west_of_74 = mean(start_lng < -74.00) * 100
+  )
+
+cat("Start Longitude Range:\n")
+cat(sprintf("  Min: %.4f (Westernmost point)\n", lng_summary$min_start_lng))
+cat(sprintf("  Max: %.4f (Easternmost point)\n", lng_summary$max_start_lng))
+cat(sprintf("  Median: %.4f\n", lng_summary$median_start_lng))
+cat(sprintf("  Percentage west of -74.00: %.1f%% (typical NJ boundary)\n", lng_summary$pct_west_of_74))
+
+```
+
+```{r include=FALSE}
+# We created citibike_2023_clean in previous code
+
+# Let's check what variables already exist
+cat("\nChecking existing variables in citibike_2023_clean:\n")
+cat("ride_length_min exists:", "ride_length_min" %in% names(citibike_2023_clean), "\n")
+cat("start_date exists:", "start_date" %in% names(citibike_2023_clean), "\n")
+cat("time_of_day exists:", "time_of_day" %in% names(citibike_2023_clean), "\n")
+cat("bike_type exists:", "bike_type" %in% names(citibike_2023_clean), "\n")
+
+# If the variables don't exist, add them
+if (!"ride_length_min" %in% names(citibike_2023_clean)) {
+  cat("\nAdding missing variables to citibike_2023_clean...\n")
+  
+  citibike_2023_clean <- citibike_2023_clean %>%
+    mutate(
+      ride_length_min = as.numeric(difftime(ended_at, started_at, units = "mins")),
+      
+      # Extract temporal features
+      start_date = as_date(started_at),
+      start_hour = hour(started_at),
+      start_month = month(started_at, label = TRUE, abbr = FALSE),
+      start_day = wday(started_at, label = TRUE, abbr = FALSE),
+      start_year = year(started_at),
+      
+      # Create useful categories
+      time_of_day = case_when(
+        start_hour >= 5 & start_hour < 12 ~ "Morning",
+        start_hour >= 12 & start_hour < 17 ~ "Afternoon",
+        start_hour >= 17 & start_hour < 21 ~ "Evening",
+        TRUE ~ "Night"
+      ),
+      
+      bike_type = case_when(
+        rideable_type == "electric_bike" ~ "Electric",
+        rideable_type == "classic_bike" ~ "Classic",
+        rideable_type == "docked_bike" ~ "Docked",
+        TRUE ~ "Other"
+      ),
+      
+      day_type = ifelse(start_day %in% c("Saturday", "Sunday"), "Weekend", "Weekday")
+    ) %>%
+    # Remove unrealistic trips (if not already done)
+    filter(
+      ride_length_min >= 1,
+      ride_length_min <= 24 * 60,
+      started_at < ended_at,
+      !(start_station_id == end_station_id & ride_length_min < 2)
+    )
+  
+  cat("Variables added successfully.\n")
+} else {
+  cat("\nAll variables already exist in citibike_2023_clean.\n")
+}
+
+# Final check
+cat(sprintf("Final NJ dataset size: %s rides\n", format(nrow(citibike_2023_clean), big.mark = ",")))
+cat("Available variables:\n")
+cat(paste(names(citibike_2023_clean), collapse = ", "), "\n")
+
+```
+
+```{r include=FALSE}
+
+# Using our existing cleaned NJ dataset and adding NJ-specific variables
+citibike_nj_analysis <- citibike_2023_clean %>%
+  # Add NJ-specific variables
+  mutate(
+    # Create consistent member_type variable
+    member_type = ifelse(member_casual == "member", "Annual Member", "Casual Rider"),
+    member_type = factor(member_type, levels = c("Annual Member", "Casual Rider")),
+    
+    # Create clean time_of_day with proper ordering
+    time_of_day = factor(time_of_day, 
+                         levels = c("Morning", "Afternoon", "Evening", "Night")),
+    
+    # Create clean bike_type with proper ordering
+    bike_type = factor(bike_type, 
+                       levels = c("Classic", "Electric", "Docked", "Other")),
+    
+    # Add season variable for later use
+    season = case_when(
+      start_month %in% c("December", "January", "February") ~ "Winter",
+      start_month %in% c("March", "April", "May") ~ "Spring",
+      start_month %in% c("June", "July", "August") ~ "Summer",
+      start_month %in% c("September", "October", "November") ~ "Fall"
+    ),
+    season = factor(season, levels = c("Winter", "Spring", "Summer", "Fall")),
+    
+    # Add day of week for heatmap
+    day_of_week = wday(started_at, label = TRUE, abbr = TRUE),
+    
+    # Add ride length categories for easier analysis
+    ride_length_category = case_when(
+      ride_length_min < 10 ~ "Short (<10 min)",
+      ride_length_min < 30 ~ "Medium (10-30 min)",
+      ride_length_min < 60 ~ "Long (30-60 min)",
+      TRUE ~ "Very Long (>60 min)"
+    ),
+    ride_length_category = factor(ride_length_category,
+                                  levels = c("Short (<10 min)", "Medium (10-30 min)", 
+                                             "Long (30-60 min)", "Very Long (>60 min)")),
+    
+    # Add NJ area categories based on longitude
+    nj_area = case_when(
+      start_lng < -74.03 ~ "Jersey City",
+      start_lng >= -74.03 ~ "Hoboken",
+      TRUE ~ "Other NJ Area"
+    ),
+    nj_area = factor(nj_area, levels = c("Hoboken", "Jersey City", "Other NJ Area"))
+  )
+
+cat(sprintf("Total NJ City Area rides: %s\n", format(nrow(citibike_nj_analysis), big.mark = ",")))
+cat(sprintf("Date range: %s to %s\n", 
+            min(citibike_nj_analysis$start_date), 
+            max(citibike_nj_analysis$start_date)))
+```
+
 
  
 
