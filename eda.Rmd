@@ -335,7 +335,7 @@ cat(sprintf("  Most rides in: %s (%.1f%%)\n",
 
 View full EDA steps on [GitHub](https://github.com/chelsopp/citi-bike-usage-analysis/blob/main/eda.html)
 
-#### Analysis 1: Monthly and seasonal patterns in New Jersey City 
+# Analysis 1: Monthly and seasonal patterns in New Jersey City 
 
 ```{r echo = FALSE}
 
@@ -459,7 +459,7 @@ print(p_seasonal_total)
 
 The NJ City sees the highest ride volume in summer, accounting for 32% of rides with an average duration of 12.2 minutes. The fall season follows with 27.1% of rides, then spring at 24.2%, which both having longer average durations than winter. Winter has the lowest ride count at 16.7%, with the shortest average ride duration of 9.5 minutes. Overall, ride frequency and duration peak in warmer seasons.
 
-#### Analysis 2: Temporal patterns in NJ City 
+# Analysis 2: Temporal patterns in NJ City 
 
 ```{r echo = FALSE}
 # Hourly patterns
@@ -571,7 +571,7 @@ print(p_heatmap)
 The heatmap highlights strong weekday commuting patterns, with ride activity concentrated in the morning and especially in the late afternoon and early evening. Weekends show a more even distribution across midday hours, with fewer early morning rides and a less concentrated in the afternoon.
 
 
-#### Analysis 3: Ride duration analysis in NJ city
+# Analysis 3: Ride duration analysis in NJ city
 
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 # Handle outliers using IQR method
@@ -697,7 +697,7 @@ print(p_duration_time)
 
 Ride durations vary slightly by time of day. Mornings are the shortest on average, while afternoons, evenings, and nights are slightly longer and have more variable trips. The overall pattern suggests that rides later in the day tend to be more leisurely or flexible compared to morning travel.
 
-#### Analysis 4: User type comparisons in NJ city
+# Analysis 4: User type comparisons in NJ city
 
 ```{r echo = FALSE}
 # Overall distribution
